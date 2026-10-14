@@ -43,6 +43,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .icon-btn:active { background: rgba(255,255,255,0.15); }
 .badge-admin { background: #ffd54f; color: #5d4000; font-size: 0.62rem; font-weight: 800; padding: 3px 7px; border-radius: 5px; letter-spacing: 0.5px; text-transform: uppercase; }
 
+/* CLOUD STATUS PILL in header */
+.cloud-pill { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; letter-spacing: 0.3px; text-transform: uppercase; }
+.cloud-online { background: #b7e4c7; color: #0b5d3b; }
+.cloud-offline { background: #ffd6d6; color: #a01b1b; }
+.cloud-syncing { background: #fff3cd; color: #7a5c00; }
+
 .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 290px; max-width: 85vw; background: white; z-index: 100; transform: translateX(-100%); transition: transform 0.25s ease; display: flex; flex-direction: column; box-shadow: 2px 0 12px rgba(0,0,0,0.15); }
 .sidebar.open { transform: translateX(0); }
 .sidebar-header { background: var(--green); color: white; padding: 18px 16px; }
@@ -131,6 +137,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tiny-btn { padding: 7px 10px; font-size: 0.75rem; border-radius: 7px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer; color: var(--text); }
 .tiny-btn.danger { color: var(--red); border-color: #f3c9c4; }
 .tiny-btn.primary { background: var(--green); color: white; border-color: var(--green); }
+.tiny-btn.success { background: #2e7d32; color: white; border-color: #2e7d32; }
 
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stat-box { background: var(--green-light); padding: 14px; border-radius: 10px; }
@@ -142,19 +149,40 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .dur-grid label { font-size: 0.72rem; color: var(--muted); }
 .quick-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 
-/* ITEM LIST */
 .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: white; }
 .item-row .ir-left { flex: 1; min-width: 0; }
 .item-row .ir-name { font-weight: 600; margin-bottom: 2px; }
 .item-row .ir-price { font-size: 0.8rem; color: var(--green); font-weight: 600; }
 .item-row .ir-actions { display: flex; gap: 6px; }
 
-/* ITEM SELECT in Add Entry */
 .item-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .item-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text); }
 .item-chip:active { background: var(--green-light); }
 .item-chip.selected { background: var(--green); color: white; border-color: var(--green); }
 .item-chip .chip-price { opacity: 0.7; font-weight: 500; margin-left: 4px; }
+
+/* CLOUD STATUS PANEL */
+.cloud-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
+.cloud-card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border); }
+.cloud-status-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.cloud-status-row:last-child { border-bottom: none; }
+.cloud-status-row .cs-label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.cloud-status-row .cs-value { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.cloud-big-status { text-align: center; padding: 20px 12px; }
+.cloud-big-status .cbs-icon { font-size: 3rem; margin-bottom: 8px; }
+.cloud-big-status .cbs-text { font-size: 1.1rem; font-weight: 700; }
+.cloud-big-status .cbs-sub { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+.cloud-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.cloud-action-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.cloud-action-btn.upload { background: var(--green); color: white; }
+.cloud-action-btn.upload:active { background: var(--green-dark); }
+.cloud-action-btn.download { background: #eef2f0; color: var(--text); }
+.cloud-action-btn.download:active { background: #dfe6e3; }
+.cloud-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.sync-badge { display:inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.sync-online { background: #b7e4c7; color: #0b5d3b; }
+.sync-offline { background: #ffd6d6; color: #a01b1b; }
+.sync-syncing { background: #fff3cd; color: #7a5c00; }
 </style>
 </head>
 <body>
@@ -210,14 +238,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="sidebar-section-title">Months</div>
       <div id="sidebar-months"></div>
       <div class="sidebar-section-title">Settings</div>
-      <div class="side-link" id="items-link">📦 <span>Items & Prices</span></div>
+      <div class="side-link" id="items-link">📦 <span>Items &amp; Prices</span></div>
+      <div class="side-link" id="cloud-link">☁️ <span>Cloud Storage</span></div>
       <div class="sidebar-section-title" id="admin-section-title" style="display:none;">Admin</div>
       <div class="side-link" id="admin-link" style="display:none;">👑 <span>Admin Panel</span></div>
-    </div>
-    <div class="sidebar-footer">
-      <button class="mini-btn" id="export-btn">⬇ Backup</button>
-      <button class="mini-btn" id="import-btn">⬆ Restore</button>
-      <input type="file" id="import-file" accept="application/json" style="display:none">
     </div>
     <div class="sidebar-footer" style="border-top:none;padding-top:0;">
       <button class="mini-btn" id="logout-btn" style="color:var(--red);border-color:#f3c9c4;">Sign Out</button>
@@ -227,12 +251,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="icon-btn" id="menu-btn">☰</button>
     <h1 id="header-title">Shop Rent Manager</h1>
     <span class="badge-admin" id="admin-badge" style="display:none;">Admin</span>
+    <span class="cloud-pill cloud-online" id="cloud-pill">☁️ Synced</span>
   </header>
   <main class="main" id="app"></main>
   <button class="fab" id="fab">＋</button>
 </div>
 
-<!-- ADD ENTRY MODAL -->
 <div class="modal" id="add-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span>Add Rent Entry</span>
@@ -260,7 +284,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- ADD ITEM MODAL -->
 <div class="modal" id="item-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span id="item-modal-title">Add Item</span>
@@ -280,7 +303,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- CREATE USER MODAL -->
 <div class="modal" id="user-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span>Create User</span>
@@ -319,7 +341,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- EXTEND MODAL -->
 <div class="modal" id="extend-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span>Extend Access</span>
@@ -360,7 +381,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCd7XOvTThXof8HFJ6K9zECPf_swj5zIk",
@@ -374,13 +395,31 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const FB = { ref, onValue, set, db };
+const FB = { ref, onValue, set, get, serverTimestamp, db };
 
 const ACCOUNTS_KEY = 'srm_accounts';
 const SESSION_KEY  = 'srm_session';
 const DATA_PREFIX  = 'srm_data_';
 const ADMIN_USER   = 'admin';
 const ADMIN_PASS   = 'sadafahad@01';
+
+// ============================================================
+// CLOUD STATUS
+// ============================================================
+let cloudStatus = 'online'; // 'online' | 'offline' | 'syncing'
+let lastSyncTime = null;
+
+function updateCloudPill() {
+  const pill = document.getElementById('cloud-pill');
+  if (!pill) return;
+  pill.className = 'cloud-pill ';
+  if (cloudStatus === 'online') { pill.className += 'cloud-online'; pill.textContent = '☁️ Synced'; }
+  else if (cloudStatus === 'syncing') { pill.className += 'cloud-syncing'; pill.textContent = '☁️ Syncing…'; }
+  else { pill.className += 'cloud-offline'; pill.textContent = '☁️ Offline'; }
+}
+
+window.addEventListener('online', () => { cloudStatus = 'online'; updateCloudPill(); if (currentUser) syncUp(true); });
+window.addEventListener('offline', () => { cloudStatus = 'offline'; updateCloudPill(); });
 
 // ============================================================
 // ACCOUNTS
@@ -430,15 +469,9 @@ async function initAccounts() {
 function isExpired(acc) { return acc.expiresAt ? Date.now() > acc.expiresAt : false; }
 function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-// ============================================================
-// SESSION
-// ============================================================
 function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
 function setSession(s) { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }
 
-// ============================================================
-// DURATION
-// ============================================================
 function durationToMs(d) {
   return (d.y||0)*365*86400000 + (d.mo||0)*30*86400000 + (d.d||0)*86400000 + (d.h||0)*3600000;
 }
@@ -461,7 +494,7 @@ function setDur(prefix, y, mo, d, h) {
 window.setDur = setDur;
 
 // ============================================================
-// SHOP DATA (customers + items)
+// SHOP DATA
 // ============================================================
 let currentUser = null;
 let state = {
@@ -473,15 +506,68 @@ let state = {
 let searchQuery = '';
 let unsubShop = null;
 let selectedItem = '';
+let skipNextRemoteUpdate = false;
 
 function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
 
+// Save locally + push to cloud
 function save() {
   if (!currentUser) return;
   const payload = { customers: state.customers, items: state.items };
   localStorage.setItem(dataKey(), JSON.stringify(payload));
-  if (FB && FB.db) {
-    FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), payload).catch(e => console.error(e));
+  syncUp();
+}
+
+// Push current data to Firebase
+async function syncUp(manual) {
+  if (!currentUser) return;
+  if (!navigator.onLine) { if (manual) toast('No internet — will sync when online'); return; }
+  cloudStatus = 'syncing'; updateCloudPill();
+  if (manual) toast('Uploading to cloud…');
+  try {
+    const payload = {
+      customers: state.customers,
+      items: state.items,
+      lastSync: Date.now(),
+      syncBy: currentUser.username
+    };
+    skipNextRemoteUpdate = true;
+    await FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), payload);
+    lastSyncTime = Date.now();
+    cloudStatus = 'online'; updateCloudPill();
+    if (manual) toast('☁️ Uploaded to cloud ✓');
+  } catch (e) {
+    console.error('Sync up failed', e);
+    cloudStatus = 'offline'; updateCloudPill();
+    if (manual) toast('Upload failed: ' + e.message);
+  }
+}
+
+// Force download from Firebase (replaces local)
+async function syncDown(manual) {
+  if (!currentUser) return;
+  if (!navigator.onLine) { if (manual) toast('No internet'); return; }
+  cloudStatus = 'syncing'; updateCloudPill();
+  if (manual) toast('Downloading from cloud…');
+  try {
+    const snap = await FB.get(FB.ref(FB.db, 'shops/' + currentUser.id));
+    const val = snap.val();
+    if (val) {
+      state.customers = val.customers ? (Array.isArray(val.customers) ? val.customers : Object.values(val.customers)) : [];
+      state.items = val.items ? (Array.isArray(val.items) ? val.items : Object.values(val.items)) : [];
+      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
+      lastSyncTime = Date.now();
+      cloudStatus = 'online'; updateCloudPill();
+      render();
+      if (manual) toast('☁️ Downloaded from cloud ✓');
+    } else {
+      cloudStatus = 'online'; updateCloudPill();
+      if (manual) toast('Nothing in cloud yet');
+    }
+  } catch (e) {
+    console.error('Sync down failed', e);
+    cloudStatus = 'offline'; updateCloudPill();
+    if (manual) toast('Download failed: ' + e.message);
   }
 }
 
@@ -499,17 +585,18 @@ function load() {
   if (unsubShop) unsubShop();
   const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
   FB.onValue(shopRef, (snap) => {
+    if (skipNextRemoteUpdate) { skipNextRemoteUpdate = false; return; }
     const val = snap.val();
     if (val) {
       if (val.customers) {
         state.customers = Array.isArray(val.customers) ? val.customers : Object.values(val.customers);
-      }
+      } else state.customers = [];
       if (val.items) {
         state.items = Array.isArray(val.items) ? val.items : Object.values(val.items);
-      } else {
-        state.items = [];
-      }
+      } else state.items = [];
       localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
+      if (val.lastSync) lastSyncTime = val.lastSync;
+      cloudStatus = 'online'; updateCloudPill();
       if (document.getElementById('app-root').style.display !== 'none') render();
     }
   });
@@ -551,6 +638,18 @@ function money(n) {
 }
 function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 function escapeAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function timeAgo(ts) {
+  if (!ts) return 'never';
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 5) return 'just now';
+  if (s < 60) return s + 's ago';
+  const m = Math.floor(s/60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m/60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h/24);
+  return d + 'd ago';
+}
 
 // ============================================================
 // CALCULATIONS
@@ -586,6 +685,7 @@ const app = document.getElementById('app');
 function render() {
   if (state.viewMode === 'admin') { renderAdmin(); return; }
   if (state.viewMode === 'items') { renderItems(); return; }
+  if (state.viewMode === 'cloud') { renderCloud(); return; }
   if (!state.view.month) state.view.month = currentMonthKey();
   if (state.view.type === 'month') renderMonth();
   else renderCustomer();
@@ -717,6 +817,89 @@ function renderCustomer() {
   app.querySelectorAll('.ei-del').forEach(btn => {
     btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(c.id, btn.dataset.eid); };
   });
+}
+
+// ============================================================
+// CLOUD PAGE
+// ============================================================
+function renderCloud() {
+  document.getElementById('header-title').textContent = 'Cloud Storage';
+  renderSidebar();
+
+  const customersCount = state.customers.length;
+  const entriesCount = state.customers.reduce((s,c)=>s+c.entries.length,0);
+  const itemsCount = state.items.length;
+  const total = getAllTimeTotal();
+
+  app.innerHTML = `
+    <button class="back-btn" id="back-cloud">← Back</button>
+
+    <div class="cloud-card">
+      <div class="cloud-big-status">
+        <div class="cbs-icon" id="cloud-big-icon">${cloudStatus === 'online' ? '☁️' : cloudStatus === 'syncing' ? '🔄' : '📴'}</div>
+        <div class="cbs-text" id="cloud-big-text">${cloudStatus === 'online' ? 'Cloud Connected' : cloudStatus === 'syncing' ? 'Syncing…' : 'Offline'}</div>
+        <div class="cbs-sub" id="cloud-big-sub">
+          ${cloudStatus === 'online'
+            ? `Last upload: ${timeAgo(lastSyncTime)}`
+            : cloudStatus === 'syncing'
+              ? 'Please wait…'
+              : 'Your data is safe on this phone. It will upload when internet returns.'}
+        </div>
+      </div>
+    </div>
+
+    <div class="cloud-card">
+      <h3 style="margin-bottom:12px;">📊 Your Cloud Data</h3>
+      <div class="cloud-status-row">
+        <span class="cs-label">Total Customers</span>
+        <span class="cs-value">${customersCount}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Total Entries</span>
+        <span class="cs-value">${entriesCount}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Items in List</span>
+        <span class="cs-value">${itemsCount}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Total Rent Recorded</span>
+        <span class="cs-value" style="color:var(--green);">${money(total)}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Sync Status</span>
+        <span class="cs-value">
+          <span class="sync-badge ${cloudStatus === 'online' ? 'sync-online' : cloudStatus === 'syncing' ? 'sync-syncing' : 'sync-offline'}">
+            ${cloudStatus === 'online' ? 'Synced' : cloudStatus === 'syncing' ? 'Syncing' : 'Offline'}
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="cloud-card">
+      <h3 style="margin-bottom:12px;">🔧 Actions</h3>
+      <div class="cloud-actions">
+        <button class="cloud-action-btn upload" id="cloud-upload-btn">
+          ☁️ Upload Now (Push to Cloud)
+        </button>
+        <button class="cloud-action-btn download" id="cloud-download-btn">
+          ⬇️ Download from Cloud
+        </button>
+      </div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:14px;line-height:1.5;">
+        <strong>Auto-sync:</strong> Every entry you save uploads to cloud automatically.<br>
+        <strong>Upload Now:</strong> Force a full upload of all your data right now.<br>
+        <strong>Download:</strong> Pull the latest data from cloud (use if you logged in on a new phone and old data is missing).
+      </p>
+    </div>
+  `;
+
+  document.getElementById('back-cloud').onclick = () => goMonth(currentMonthKey());
+  document.getElementById('cloud-upload-btn').onclick = () => syncUp(true);
+  document.getElementById('cloud-download-btn').onclick = () => {
+    if (!confirm('This will replace your local data with the latest from cloud. Continue?')) return;
+    syncDown(true);
+  };
 }
 
 // ============================================================
@@ -947,6 +1130,7 @@ function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', mont
 function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
 function goAdmin() { state.viewMode = 'admin'; render(); closeSidebar(); window.scrollTo(0,0); }
 function goItems() { state.viewMode = 'items'; render(); closeSidebar(); window.scrollTo(0,0); }
+function goCloud() { state.viewMode = 'cloud'; render(); closeSidebar(); window.scrollTo(0,0); }
 
 // ============================================================
 // CRUD
@@ -969,11 +1153,9 @@ function openModal() {
   document.getElementById('f-date').value = todayISO();
   selectedItem = '';
 
-  // customer suggestions
   const dl = document.getElementById('customer-names');
   dl.innerHTML = state.customers.map(c => `<option value="${escapeAttr(c.name)}">`).join('');
 
-  // item chips
   renderItemChips();
 
   document.getElementById('add-modal').classList.add('open');
@@ -1005,9 +1187,6 @@ function renderItemChips() {
 
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
 
-// ============================================================
-// CREATE USER
-// ============================================================
 function openUserModal() {
   document.getElementById('u-name').value = '';
   document.getElementById('u-user').value = '';
@@ -1064,7 +1243,7 @@ function saveEntry() {
   let cust = state.customers.find(c => c.name.toLowerCase() === name.toLowerCase());
   if (!cust) { cust = { id: uid(), name, entries: [] }; state.customers.push(cust); }
   cust.entries.push({ id: uid(), date, amount, item: item || 'Rent' });
-  save(); closeModal(); toast('Entry saved ✓');
+  save(); closeModal(); toast('Saved & uploading to cloud ✓');
   goMonth(monthOf(date));
 }
 
@@ -1081,6 +1260,7 @@ overlay.onclick = closeSidebar;
 document.getElementById('side-add').onclick = () => { closeSidebar(); setTimeout(openModal, 250); };
 document.getElementById('fab').onclick = openModal;
 document.getElementById('items-link').onclick = goItems;
+document.getElementById('cloud-link').onclick = goCloud;
 document.getElementById('close-modal').onclick = closeModal;
 document.getElementById('cancel-btn').onclick = closeModal;
 document.getElementById('save-btn').onclick = saveEntry;
@@ -1099,36 +1279,6 @@ document.getElementById('logout-btn').onclick = () => {
   if (!confirm('Sign out?')) return;
   setSession(null);
   location.reload();
-};
-
-// ============================================================
-// BACKUP
-// ============================================================
-document.getElementById('export-btn').onclick = () => {
-  const data = JSON.stringify({ customers: state.customers, items: state.items, exportedAt: new Date().toISOString() }, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'shop-rent-backup-' + todayISO() + '.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('Backup downloaded');
-};
-document.getElementById('import-btn').onclick = () => document.getElementById('import-file').click();
-document.getElementById('import-file').onchange = (e) => {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!Array.isArray(data.customers)) throw new Error('Invalid');
-      if (!confirm('This will replace ALL current data. Continue?')) return;
-      state.customers = data.customers;
-      state.items = Array.isArray(data.items) ? data.items : [];
-      save(); render(); toast('Data restored ✓');
-    } catch { toast('Invalid backup file'); }
-  };
-  reader.readAsText(file); e.target.value = '';
 };
 
 // ============================================================
@@ -1223,7 +1373,13 @@ function startApp() {
   state.view.month = currentMonthKey();
   state.viewMode = 'app';
   hideGate();
+
+  cloudStatus = navigator.onLine ? 'online' : 'offline';
+  updateCloudPill();
   render();
+
+  // Auto-sync on login if online
+  if (navigator.onLine) setTimeout(() => syncDown(false), 800);
 }
 
 setInterval(() => {
