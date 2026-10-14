@@ -12,8 +12,7 @@
   --red: #c0392b; --text: #1c2b26; --muted: #6b7a75;
   --border: #e2e8e5; --bg: #f4f7f6;
 }
-html, body { height: 100%; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
 .gate { position: fixed; inset: 0; background: linear-gradient(160deg, var(--green), var(--green-dark)); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 500; overflow-y: auto; }
 .gate.hidden { display: none; }
@@ -35,7 +34,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
 .btn-primary { background: var(--green); color: white; }
 .btn-primary:active { background: var(--green-dark); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-ghost { background: transparent; color: var(--muted); font-size: 0.82rem; padding: 8px; margin-top: 4px; }
 .gate-footer { text-align: center; margin-top: 14px; font-size: 0.78rem; color: var(--muted); }
 
@@ -45,7 +43,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .icon-btn:active { background: rgba(255,255,255,0.15); }
 .badge-admin { background: #ffd54f; color: #5d4000; font-size: 0.62rem; font-weight: 800; padding: 3px 7px; border-radius: 5px; letter-spacing: 0.5px; text-transform: uppercase; }
 
-.cloud-pill { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; letter-spacing: 0.3px; text-transform: uppercase; transition: background 0.2s; }
+/* CLOUD STATUS PILL in header */
+.cloud-pill { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; letter-spacing: 0.3px; text-transform: uppercase; }
 .cloud-online { background: #b7e4c7; color: #0b5d3b; }
 .cloud-offline { background: #ffd6d6; color: #a01b1b; }
 .cloud-syncing { background: #fff3cd; color: #7a5c00; }
@@ -138,6 +137,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tiny-btn { padding: 7px 10px; font-size: 0.75rem; border-radius: 7px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer; color: var(--text); }
 .tiny-btn.danger { color: var(--red); border-color: #f3c9c4; }
 .tiny-btn.primary { background: var(--green); color: white; border-color: var(--green); }
+.tiny-btn.success { background: #2e7d32; color: white; border-color: #2e7d32; }
 
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stat-box { background: var(--green-light); padding: 14px; border-radius: 10px; }
@@ -161,6 +161,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .item-chip.selected { background: var(--green); color: white; border-color: var(--green); }
 .item-chip .chip-price { opacity: 0.7; font-weight: 500; margin-left: 4px; }
 
+/* CLOUD STATUS PANEL */
+.cloud-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
 .cloud-card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border); }
 .cloud-status-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .cloud-status-row:last-child { border-bottom: none; }
@@ -379,7 +381,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCd7XOvTThXof8HFJ6K9zECPf_swj5zIk",
@@ -393,6 +395,7 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
+const FB = { ref, onValue, set, get, serverTimestamp, db };
 
 const ACCOUNTS_KEY = 'srm_accounts';
 const SESSION_KEY  = 'srm_session';
@@ -401,55 +404,207 @@ const ADMIN_USER   = 'admin';
 const ADMIN_PASS   = 'sadafahad@01';
 
 // ============================================================
-// STATE
-// ============================================================
-let currentUser = null;
-let accountsCache = [];
-let state = { customers: [], items: [] };
-let viewState = { mode: 'month', month: '', customerId: null, fromMonth: null };
-let searchQuery = '';
-let selectedItem = '';
-let cloudStatus = 'online';
-let lastSyncTime = null;
-let unsubShop = null;
-let unsubAccounts = null;
-let isSyncing = false;      // blocks overlapping writes
-let pendingRemoteUpdate = null;   // debounce remote updates
-let saveTimer = null;       // debounce local saves
-
-// ============================================================
 // CLOUD STATUS
 // ============================================================
+let cloudStatus = 'online'; // 'online' | 'offline' | 'syncing'
+let lastSyncTime = null;
+
 function updateCloudPill() {
   const pill = document.getElementById('cloud-pill');
   if (!pill) return;
-  const map = {
-    online:  ['cloud-online',  '☁️ Synced'],
-    syncing: ['cloud-syncing', '☁️ Syncing…'],
-    offline: ['cloud-offline', '☁️ Offline']
-  };
-  const [cls, txt] = map[cloudStatus] || map.online;
-  pill.className = 'cloud-pill ' + cls;
-  pill.textContent = txt;
+  pill.className = 'cloud-pill ';
+  if (cloudStatus === 'online') { pill.className += 'cloud-online'; pill.textContent = '☁️ Synced'; }
+  else if (cloudStatus === 'syncing') { pill.className += 'cloud-syncing'; pill.textContent = '☁️ Syncing…'; }
+  else { pill.className += 'cloud-offline'; pill.textContent = '☁️ Offline'; }
 }
 
-window.addEventListener('online', () => {
-  cloudStatus = 'online'; updateCloudPill();
-  if (currentUser) syncUp(false);
-});
-window.addEventListener('offline', () => {
-  cloudStatus = 'offline'; updateCloudPill();
-});
+window.addEventListener('online', () => { cloudStatus = 'online'; updateCloudPill(); if (currentUser) syncUp(true); });
+window.addEventListener('offline', () => { cloudStatus = 'offline'; updateCloudPill(); });
 
 // ============================================================
-// HELPERS
+// ACCOUNTS
 // ============================================================
+let ACCOUNTS_CACHE = [];
+function getAccounts() { return ACCOUNTS_CACHE; }
+function setAccounts(list) {
+  ACCOUNTS_CACHE = list;
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
+  if (FB && FB.db) FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error(e));
+}
 function toArray(val) {
   if (!val) return [];
   if (Array.isArray(val)) return val;
   if (typeof val === 'object') return Object.values(val);
   return [];
 }
+async function initAccounts() {
+  try {
+    const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
+    ACCOUNTS_CACHE = local;
+  } catch { ACCOUNTS_CACHE = []; }
+
+  return new Promise(resolve => {
+    const accRef = FB.ref(FB.db, 'accounts');
+    let firstFire = true;
+    FB.onValue(accRef, (snap) => {
+      const val = snap.val();
+      const list = toArray(val);
+      if (list.length > 0) {
+        ACCOUNTS_CACHE = list;
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
+      } else if (firstFire) {
+        const seed = ACCOUNTS_CACHE.length ? ACCOUNTS_CACHE : [{
+          id: 'admin', name: 'Administrator', username: ADMIN_USER,
+          password: ADMIN_PASS, role: 'admin',
+          createdAt: Date.now(), expiresAt: null, disabled: false
+        }];
+        ACCOUNTS_CACHE = seed;
+        FB.set(accRef, seed);
+      }
+      firstFire = false;
+      resolve();
+    });
+  });
+}
+function isExpired(acc) { return acc.expiresAt ? Date.now() > acc.expiresAt : false; }
+function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function setSession(s) { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }
+
+function durationToMs(d) {
+  return (d.y||0)*365*86400000 + (d.mo||0)*30*86400000 + (d.d||0)*86400000 + (d.h||0)*3600000;
+}
+function formatRemaining(ms) {
+  if (ms <= 0) return 'Expired';
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  if (d > 0) return `${d}d ${h}h left`;
+  if (h > 0) return `${h}h ${m}m left`;
+  return `${m}m left`;
+}
+function setDur(prefix, y, mo, d, h) {
+  document.getElementById(prefix + '-years').value = y;
+  document.getElementById(prefix + '-months').value = mo;
+  document.getElementById(prefix + '-days').value = d;
+  document.getElementById(prefix + '-hours').value = h;
+}
+window.setDur = setDur;
+
+// ============================================================
+// SHOP DATA
+// ============================================================
+let currentUser = null;
+let state = {
+  customers: [],
+  items: [],
+  view: { type: 'month', month: '' },
+  viewMode: 'app'
+};
+let searchQuery = '';
+let unsubShop = null;
+let selectedItem = '';
+let skipNextRemoteUpdate = false;
+
+function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
+
+// Save locally + push to cloud
+function save() {
+  if (!currentUser) return;
+  const payload = { customers: state.customers, items: state.items };
+  localStorage.setItem(dataKey(), JSON.stringify(payload));
+  syncUp();
+}
+
+// Push current data to Firebase
+async function syncUp(manual) {
+  if (!currentUser) return;
+  if (!navigator.onLine) { if (manual) toast('No internet — will sync when online'); return; }
+  cloudStatus = 'syncing'; updateCloudPill();
+  if (manual) toast('Uploading to cloud…');
+  try {
+    const payload = {
+      customers: state.customers,
+      items: state.items,
+      lastSync: Date.now(),
+      syncBy: currentUser.username
+    };
+    skipNextRemoteUpdate = true;
+    await FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), payload);
+    lastSyncTime = Date.now();
+    cloudStatus = 'online'; updateCloudPill();
+    if (manual) toast('☁️ Uploaded to cloud ✓');
+  } catch (e) {
+    console.error('Sync up failed', e);
+    cloudStatus = 'offline'; updateCloudPill();
+    if (manual) toast('Upload failed: ' + e.message);
+  }
+}
+
+// Force download from Firebase (replaces local)
+async function syncDown(manual) {
+  if (!currentUser) return;
+  if (!navigator.onLine) { if (manual) toast('No internet'); return; }
+  cloudStatus = 'syncing'; updateCloudPill();
+  if (manual) toast('Downloading from cloud…');
+  try {
+    const snap = await FB.get(FB.ref(FB.db, 'shops/' + currentUser.id));
+    const val = snap.val();
+    if (val) {
+      state.customers = val.customers ? (Array.isArray(val.customers) ? val.customers : Object.values(val.customers)) : [];
+      state.items = val.items ? (Array.isArray(val.items) ? val.items : Object.values(val.items)) : [];
+      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
+      lastSyncTime = Date.now();
+      cloudStatus = 'online'; updateCloudPill();
+      render();
+      if (manual) toast('☁️ Downloaded from cloud ✓');
+    } else {
+      cloudStatus = 'online'; updateCloudPill();
+      if (manual) toast('Nothing in cloud yet');
+    }
+  } catch (e) {
+    console.error('Sync down failed', e);
+    cloudStatus = 'offline'; updateCloudPill();
+    if (manual) toast('Download failed: ' + e.message);
+  }
+}
+
+function load() {
+  if (!currentUser) return;
+  try {
+    const raw = localStorage.getItem(dataKey());
+    if (raw) {
+      const d = JSON.parse(raw);
+      state.customers = d.customers || [];
+      state.items = d.items || [];
+    } else { state.customers = []; state.items = []; }
+  } catch { state.customers = []; state.items = []; }
+
+  if (unsubShop) unsubShop();
+  const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
+  FB.onValue(shopRef, (snap) => {
+    if (skipNextRemoteUpdate) { skipNextRemoteUpdate = false; return; }
+    const val = snap.val();
+    if (val) {
+      if (val.customers) {
+        state.customers = Array.isArray(val.customers) ? val.customers : Object.values(val.customers);
+      } else state.customers = [];
+      if (val.items) {
+        state.items = Array.isArray(val.items) ? val.items : Object.values(val.items);
+      } else state.items = [];
+      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
+      if (val.lastSync) lastSyncTime = val.lastSync;
+      cloudStatus = 'online'; updateCloudPill();
+      if (document.getElementById('app-root').style.display !== 'none') render();
+    }
+  });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function currentMonthKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
 function monthOf(d) { return d.slice(0,7); }
@@ -495,203 +650,6 @@ function timeAgo(ts) {
   const d = Math.floor(h/24);
   return d + 'd ago';
 }
-function isExpired(acc) { return acc.expiresAt ? Date.now() > acc.expiresAt : false; }
-function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function durationToMs(d) {
-  return (d.y||0)*365*86400000 + (d.mo||0)*30*86400000 + (d.d||0)*86400000 + (d.h||0)*3600000;
-}
-function formatRemaining(ms) {
-  if (ms <= 0) return 'Expired';
-  const s = Math.floor(ms/1000);
-  const d = Math.floor(s/86400);
-  const h = Math.floor((s%86400)/3600);
-  const m = Math.floor((s%3600)/60);
-  if (d > 0) return `${d}d ${h}h left`;
-  if (h > 0) return `${h}h ${m}m left`;
-  return `${m}m left`;
-}
-function setDur(prefix, y, mo, d, h) {
-  document.getElementById(prefix + '-years').value = y;
-  document.getElementById(prefix + '-months').value = mo;
-  document.getElementById(prefix + '-days').value = d;
-  document.getElementById(prefix + '-hours').value = h;
-}
-window.setDur = setDur;
-
-// ============================================================
-// SESSION
-// ============================================================
-function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
-function setSession(s) {
-  if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
-  else localStorage.removeItem(SESSION_KEY);
-}
-
-// ============================================================
-// ACCOUNTS (subscribe once)
-// ============================================================
-function getAccounts() { return accountsCache; }
-
-async function setAccounts(list) {
-  accountsCache = list;
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-  try {
-    await set(ref(db, 'accounts'), list);
-  } catch (e) { console.error('accounts save failed', e); }
-}
-
-function initAccounts() {
-  try {
-    const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
-    accountsCache = local;
-  } catch { accountsCache = []; }
-
-  return new Promise(resolve => {
-    const accRef = ref(db, 'accounts');
-    let firstFire = true;
-    unsubAccounts = onValue(accRef, (snap) => {
-      const val = snap.val();
-      const list = toArray(val);
-      if (list.length > 0) {
-        accountsCache = list;
-        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-      } else if (firstFire) {
-        const seed = accountsCache.length ? accountsCache : [{
-          id: 'admin', name: 'Administrator', username: ADMIN_USER,
-          password: ADMIN_PASS, role: 'admin',
-          createdAt: Date.now(), expiresAt: null, disabled: false
-        }];
-        accountsCache = seed;
-        set(ref(db, 'accounts'), seed).catch(()=>{});
-      }
-      firstFire = false;
-      resolve();
-    }, () => { firstFire = false; resolve(); });
-  });
-}
-
-// ============================================================
-// SHOP DATA
-// ============================================================
-function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
-
-function saveLocalOnly() {
-  if (!currentUser) return;
-  localStorage.setItem(dataKey(), JSON.stringify({
-    customers: state.customers,
-    items: state.items
-  }));
-}
-
-// Debounced save → prevents hammering Firebase on rapid taps
-function save() {
-  saveLocalOnly();
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => syncUp(false), 400);
-}
-
-async function syncUp(manual) {
-  if (!currentUser || isSyncing) return;
-  if (!navigator.onLine) {
-    if (manual) toast('No internet — will sync when online');
-    return;
-  }
-  isSyncing = true;
-  cloudStatus = 'syncing'; updateCloudPill();
-  if (manual) toast('Uploading to cloud…');
-  try {
-    const payload = {
-      customers: state.customers,
-      items: state.items,
-      lastSync: Date.now(),
-      syncBy: currentUser.username
-    };
-    await set(ref(db, 'shops/' + currentUser.id), payload);
-    lastSyncTime = Date.now();
-    cloudStatus = 'online'; updateCloudPill();
-    if (manual) toast('☁️ Uploaded to cloud ✓');
-  } catch (e) {
-    console.error('Sync up failed', e);
-    cloudStatus = 'offline'; updateCloudPill();
-    if (manual) toast('Upload failed: ' + (e.message || 'error'));
-  } finally {
-    isSyncing = false;
-  }
-}
-
-async function syncDown(manual) {
-  if (!currentUser) return;
-  if (!navigator.onLine) { if (manual) toast('No internet'); return; }
-  cloudStatus = 'syncing'; updateCloudPill();
-  if (manual) toast('Downloading from cloud…');
-  try {
-    const snap = await get(ref(db, 'shops/' + currentUser.id));
-    const val = snap.val();
-    if (val) {
-      state.customers = val.customers ? toArray(val.customers) : [];
-      state.items = val.items ? toArray(val.items) : [];
-      saveLocalOnly();
-      if (val.lastSync) lastSyncTime = val.lastSync;
-      cloudStatus = 'online'; updateCloudPill();
-      render();
-      if (manual) toast('☁️ Downloaded from cloud ✓');
-    } else {
-      cloudStatus = 'online'; updateCloudPill();
-      if (manual) toast('Nothing in cloud yet');
-    }
-  } catch (e) {
-    console.error('Sync down failed', e);
-    cloudStatus = 'offline'; updateCloudPill();
-    if (manual) toast('Download failed: ' + (e.message || 'error'));
-  }
-}
-
-// Live subscription — updates only when cloud data actually differs
-function subscribeShop() {
-  if (unsubShop) unsubShop();
-  const shopRef = ref(db, 'shops/' + currentUser.id);
-  unsubShop = onValue(shopRef, (snap) => {
-    const val = snap.val();
-    if (!val) return;
-    const remoteCustomers = val.customers ? toArray(val.customers) : [];
-    const remoteItems = val.items ? toArray(val.items) : [];
-
-    // Skip if identical (avoid re-render loops)
-    const sameCustomers = JSON.stringify(remoteCustomers) === JSON.stringify(state.customers);
-    const sameItems = JSON.stringify(remoteItems) === JSON.stringify(state.items);
-    if (sameCustomers && sameItems) {
-      if (val.lastSync) lastSyncTime = val.lastSync;
-      return;
-    }
-
-    // Debounce — Firebase sometimes fires twice quickly
-    if (pendingRemoteUpdate) clearTimeout(pendingRemoteUpdate);
-    pendingRemoteUpdate = setTimeout(() => {
-      state.customers = remoteCustomers;
-      state.items = remoteItems;
-      saveLocalOnly();
-      if (val.lastSync) lastSyncTime = val.lastSync;
-      cloudStatus = 'online'; updateCloudPill();
-      if (document.getElementById('app-root').style.display !== 'none') render();
-      pendingRemoteUpdate = null;
-    }, 250);
-  });
-}
-
-function loadFromLocal() {
-  if (!currentUser) return;
-  try {
-    const raw = localStorage.getItem(dataKey());
-    if (raw) {
-      const d = JSON.parse(raw);
-      state.customers = d.customers || [];
-      state.items = d.items || [];
-    } else {
-      state.customers = [];
-      state.items = [];
-    }
-  } catch { state.customers = []; state.items = []; }
-}
 
 // ============================================================
 // CALCULATIONS
@@ -725,28 +683,16 @@ function getAllTimeTotal() {
 const app = document.getElementById('app');
 
 function render() {
-  if (viewState.mode === 'admin') { renderAdmin(); return; }
-  if (viewState.mode === 'items') { renderItems(); return; }
-  if (viewState.mode === 'cloud') { renderCloud(); return; }
-  if (!viewState.month) viewState.month = currentMonthKey();
-  if (viewState.mode === 'customer') renderCustomer();
-  else renderMonth();
+  if (state.viewMode === 'admin') { renderAdmin(); return; }
+  if (state.viewMode === 'items') { renderItems(); return; }
+  if (state.viewMode === 'cloud') { renderCloud(); return; }
+  if (!state.view.month) state.view.month = currentMonthKey();
+  if (state.view.type === 'month') renderMonth();
+  else renderCustomer();
   renderSidebar();
-  updateHeader();
-}
-
-function updateHeader() {
-  const el = document.getElementById('header-title');
-  if (!el) return;
-  if (viewState.mode === 'admin') el.textContent = 'Admin Panel';
-  else if (viewState.mode === 'items') el.textContent = 'Items & Prices';
-  else if (viewState.mode === 'cloud') el.textContent = 'Cloud Storage';
-  else if (viewState.mode === 'customer') {
-    const c = state.customers.find(x => x.id === viewState.customerId);
-    el.textContent = c ? c.name : 'Customer';
-  } else {
-    el.textContent = monthName(viewState.month);
-  }
+  document.getElementById('header-title').textContent =
+    state.view.type === 'month' ? monthName(state.view.month) :
+    (state.customers.find(c => c.id === state.view.id)?.name || 'Customer');
 }
 
 function renderSidebar() {
@@ -754,7 +700,7 @@ function renderSidebar() {
   const el = document.getElementById('sidebar-months');
   el.innerHTML = months.map(m => {
     const total = getMonthTotal(m);
-    const active = viewState.mode === 'month' && viewState.month === m ? 'active' : '';
+    const active = state.view.type === 'month' && state.view.month === m && state.viewMode === 'app' ? 'active' : '';
     return `<div class="month-item ${active}" data-month="${m}">
       <span class="m-name">${monthName(m)}</span>
       <span class="m-total">${money(total)}</span>
@@ -779,7 +725,7 @@ function renderSidebar() {
 }
 
 function renderMonth() {
-  const m = viewState.month;
+  const m = state.view.month;
   const total = getMonthTotal(m);
   app.innerHTML = `
     <div class="month-summary">
@@ -794,15 +740,12 @@ function renderMonth() {
   `;
   const searchEl = document.getElementById('search');
   searchEl.value = searchQuery;
-  searchEl.oninput = (e) => {
-    searchQuery = e.target.value;
-    updateCustList();
-  };
+  searchEl.oninput = (e) => { searchQuery = e.target.value; updateCustList(); };
   updateCustList();
 }
 
 function updateCustList() {
-  const m = viewState.month;
+  const m = state.view.month;
   const list = getMonthCustomers(m);
   const q = searchQuery.trim().toLowerCase();
   const filtered = q ? list.filter(x => x.customer.name.toLowerCase().includes(q)) : list;
@@ -830,8 +773,8 @@ function updateCustList() {
 }
 
 function renderCustomer() {
-  const c = state.customers.find(x => x.id === viewState.customerId);
-  if (!c) { goMonth(viewState.fromMonth || currentMonthKey()); return; }
+  const c = state.customers.find(x => x.id === state.view.id);
+  if (!c) { goMonth(state.view.fromMonth || currentMonthKey()); return; }
   const allTotal = c.entries.reduce((s,e) => s + e.amount, 0);
   const byMonth = {};
   c.entries.forEach(e => {
@@ -870,7 +813,7 @@ function renderCustomer() {
           `;
         }).join('')}
   `;
-  document.getElementById('back').onclick = () => goMonth(viewState.fromMonth || currentMonthKey());
+  document.getElementById('back').onclick = () => goMonth(state.view.fromMonth || currentMonthKey());
   app.querySelectorAll('.ei-del').forEach(btn => {
     btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(c.id, btn.dataset.eid); };
   });
@@ -880,6 +823,9 @@ function renderCustomer() {
 // CLOUD PAGE
 // ============================================================
 function renderCloud() {
+  document.getElementById('header-title').textContent = 'Cloud Storage';
+  renderSidebar();
+
   const customersCount = state.customers.length;
   const entriesCount = state.customers.reduce((s,c)=>s+c.entries.length,0);
   const itemsCount = state.items.length;
@@ -890,9 +836,9 @@ function renderCloud() {
 
     <div class="cloud-card">
       <div class="cloud-big-status">
-        <div class="cbs-icon">${cloudStatus === 'online' ? '☁️' : cloudStatus === 'syncing' ? '🔄' : '📴'}</div>
-        <div class="cbs-text">${cloudStatus === 'online' ? 'Cloud Connected' : cloudStatus === 'syncing' ? 'Syncing…' : 'Offline'}</div>
-        <div class="cbs-sub">
+        <div class="cbs-icon" id="cloud-big-icon">${cloudStatus === 'online' ? '☁️' : cloudStatus === 'syncing' ? '🔄' : '📴'}</div>
+        <div class="cbs-text" id="cloud-big-text">${cloudStatus === 'online' ? 'Cloud Connected' : cloudStatus === 'syncing' ? 'Syncing…' : 'Offline'}</div>
+        <div class="cbs-sub" id="cloud-big-sub">
           ${cloudStatus === 'online'
             ? `Last upload: ${timeAgo(lastSyncTime)}`
             : cloudStatus === 'syncing'
@@ -904,10 +850,22 @@ function renderCloud() {
 
     <div class="cloud-card">
       <h3 style="margin-bottom:12px;">📊 Your Cloud Data</h3>
-      <div class="cloud-status-row"><span class="cs-label">Total Customers</span><span class="cs-value">${customersCount}</span></div>
-      <div class="cloud-status-row"><span class="cs-label">Total Entries</span><span class="cs-value">${entriesCount}</span></div>
-      <div class="cloud-status-row"><span class="cs-label">Items in List</span><span class="cs-value">${itemsCount}</span></div>
-      <div class="cloud-status-row"><span class="cs-label">Total Rent Recorded</span><span class="cs-value" style="color:var(--green);">${money(total)}</span></div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Total Customers</span>
+        <span class="cs-value">${customersCount}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Total Entries</span>
+        <span class="cs-value">${entriesCount}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Items in List</span>
+        <span class="cs-value">${itemsCount}</span>
+      </div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Total Rent Recorded</span>
+        <span class="cs-value" style="color:var(--green);">${money(total)}</span>
+      </div>
       <div class="cloud-status-row">
         <span class="cs-label">Sync Status</span>
         <span class="cs-value">
@@ -921,9 +879,18 @@ function renderCloud() {
     <div class="cloud-card">
       <h3 style="margin-bottom:12px;">🔧 Actions</h3>
       <div class="cloud-actions">
-        <button class="cloud-action-btn upload" id="cloud-upload-btn">☁️ Upload Now (Push to Cloud)</button>
-        <button class="cloud-action-btn download" id="cloud-download-btn">⬇️ Download from Cloud</button>
+        <button class="cloud-action-btn upload" id="cloud-upload-btn">
+          ☁️ Upload Now (Push to Cloud)
+        </button>
+        <button class="cloud-action-btn download" id="cloud-download-btn">
+          ⬇️ Download from Cloud
+        </button>
       </div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:14px;line-height:1.5;">
+        <strong>Auto-sync:</strong> Every entry you save uploads to cloud automatically.<br>
+        <strong>Upload Now:</strong> Force a full upload of all your data right now.<br>
+        <strong>Download:</strong> Pull the latest data from cloud (use if you logged in on a new phone and old data is missing).
+      </p>
     </div>
   `;
 
@@ -939,6 +906,9 @@ function renderCloud() {
 // ITEMS PAGE
 // ============================================================
 function renderItems() {
+  document.getElementById('header-title').textContent = 'Items & Prices';
+  renderSidebar();
+
   const items = state.items || [];
   app.innerHTML = `
     <button class="back-btn" id="back-items">← Back</button>
@@ -947,7 +917,9 @@ function renderItems() {
         <h3 style="margin:0;">📦 My Items</h3>
         <button class="tiny-btn primary" id="add-item-btn">＋ Add Item</button>
       </div>
-      <p style="font-size:0.82rem;color:var(--muted);">These items show up as quick buttons when you add a new rent entry.</p>
+      <p style="font-size:0.82rem;color:var(--muted);">
+        These items show up as quick buttons when you add a new rent entry.
+      </p>
     </div>
     <div id="items-list">
       ${items.length === 0
@@ -997,7 +969,9 @@ function saveItem() {
   const id = document.getElementById('item-edit-id').value;
   const name = document.getElementById('item-name').value.trim();
   const price = parseFloat(document.getElementById('item-price').value) || 0;
+
   if (!name) return toast('Enter item name');
+
   if (id) {
     const it = state.items.find(x => x.id === id);
     if (it) { it.name = name; it.price = price; }
@@ -1007,7 +981,7 @@ function saveItem() {
   save();
   closeItemModal();
   toast('Item saved ✓');
-  if (viewState.mode === 'items') renderItems();
+  if (state.viewMode === 'items') renderItems();
 }
 
 function deleteItem(id) {
@@ -1022,6 +996,8 @@ function deleteItem(id) {
 // ADMIN PANEL
 // ============================================================
 function renderAdmin() {
+  document.getElementById('header-title').textContent = 'Admin Panel';
+  renderSidebar();
   const accounts = getAccounts().filter(a => a.role !== 'admin');
   const active = accounts.filter(a => !a.disabled && !isExpired(a)).length;
   const expired = accounts.filter(a => !a.disabled && isExpired(a)).length;
@@ -1038,6 +1014,7 @@ function renderAdmin() {
           <div class="stat-box"><div class="sb-label">Disabled</div><div class="sb-value">${disabled}</div></div>
         </div>
       </div>
+
       <div class="admin-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h3 style="margin:0;">👥 Users</h3>
@@ -1069,6 +1046,7 @@ function renderAdmin() {
               `;
             }).join('')}
       </div>
+
       <div class="admin-card">
         <h3>🔑 Change Admin Password</h3>
         <div class="form-group"><label>New Password</label>
@@ -1101,7 +1079,7 @@ function handleUserAction(action, id) {
   if (action === 'extend') { openExtendModal(id); return; }
   if (action === 'delete') {
     if (!confirm(`Delete ${u.name}? Their data on ALL devices will be removed too.`)) return;
-    set(ref(db, 'shops/' + u.id), null).catch(()=>{});
+    if (FB && FB.db) FB.set(FB.ref(FB.db, 'shops/' + u.id), null);
     localStorage.removeItem(DATA_PREFIX + u.id);
     const idx = list.findIndex(x => x.id === id);
     list.splice(idx, 1);
@@ -1130,8 +1108,10 @@ function confirmExtend() {
   const mo = parseInt(document.getElementById('ex-months').value) || 0;
   const d = parseInt(document.getElementById('ex-days').value) || 0;
   const h = parseInt(document.getElementById('ex-hours').value) || 0;
+
   const ms = durationToMs({ y, mo, d, h });
   if (ms <= 0) return toast('Pick a duration greater than 0');
+
   const list = [...getAccounts()];
   const u = list.find(x => x.id === id);
   if (!u) return;
@@ -1146,18 +1126,11 @@ function confirmExtend() {
 // ============================================================
 // NAV
 // ============================================================
-function goMonth(m) {
-  viewState = { mode: 'month', month: m, customerId: null, fromMonth: null };
-  searchQuery = '';
-  render(); window.scrollTo(0,0);
-}
-function goCustomer(id, fromMonth) {
-  viewState = { mode: 'customer', month: fromMonth || currentMonthKey(), customerId: id, fromMonth };
-  render(); window.scrollTo(0,0);
-}
-function goAdmin() { viewState = { ...viewState, mode: 'admin' }; render(); closeSidebar(); window.scrollTo(0,0); }
-function goItems() { viewState = { ...viewState, mode: 'items' }; render(); closeSidebar(); window.scrollTo(0,0); }
-function goCloud() { viewState = { ...viewState, mode: 'cloud' }; render(); closeSidebar(); window.scrollTo(0,0); }
+function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', month: m }; searchQuery = ''; render(); window.scrollTo(0,0); }
+function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
+function goAdmin() { state.viewMode = 'admin'; render(); closeSidebar(); window.scrollTo(0,0); }
+function goItems() { state.viewMode = 'items'; render(); closeSidebar(); window.scrollTo(0,0); }
+function goCloud() { state.viewMode = 'cloud'; render(); closeSidebar(); window.scrollTo(0,0); }
 
 // ============================================================
 // CRUD
@@ -1179,9 +1152,12 @@ function openModal() {
   document.getElementById('f-amount').value = '';
   document.getElementById('f-date').value = todayISO();
   selectedItem = '';
+
   const dl = document.getElementById('customer-names');
   dl.innerHTML = state.customers.map(c => `<option value="${escapeAttr(c.name)}">`).join('');
+
   renderItemChips();
+
   document.getElementById('add-modal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 300);
 }
@@ -1190,7 +1166,7 @@ function renderItemChips() {
   const wrap = document.getElementById('item-chips');
   const items = state.items || [];
   if (items.length === 0) {
-    wrap.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);">No items set. Go to <strong>📦 Items &amp; Prices</strong> in the sidebar to add some.</p>`;
+    wrap.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);">No items set. Go to <strong>📦 Items & Prices</strong> in the sidebar to add some.</p>`;
     return;
   }
   wrap.innerHTML = items.map(it => `
@@ -1228,21 +1204,26 @@ function createUser() {
   const mo = parseInt(document.getElementById('cu-months').value) || 0;
   const d = parseInt(document.getElementById('cu-days').value) || 0;
   const h = parseInt(document.getElementById('cu-hours').value) || 0;
+
   if (!name) return toast('Enter shopkeeper name');
   if (!username || username.length < 3) return toast('Username must be 3+ characters');
   if (!/^[a-z0-9_]+$/.test(username)) return toast('Username: letters, numbers, _ only');
   if (!password || password.length < 4) return toast('Password must be 4+ characters');
+
   const ms = durationToMs({ y, mo, d, h });
   if (ms <= 0) return toast('Set an access duration greater than 0');
+
   const list = [...getAccounts()];
   if (list.find(a => a.username === username)) return toast('Username already taken');
-  list.push({
+
+  const newUser = {
     id: genId(), name, username, password,
     role: 'shopkeeper',
     createdAt: Date.now(),
     expiresAt: Date.now() + ms,
     disabled: false
-  });
+  };
+  list.push(newUser);
   setAccounts(list);
   toast(`✓ Created. @${username} / ${password}`);
   closeUserModal();
@@ -1254,15 +1235,15 @@ function saveEntry() {
   const item = document.getElementById('f-item').value.trim() || selectedItem;
   const amount = parseFloat(document.getElementById('f-amount').value);
   const date = document.getElementById('f-date').value;
+
   if (!name) return toast('Please enter customer name');
   if (!date) return toast('Please select a date');
   if (!amount || amount <= 0) return toast('Please enter a valid amount');
+
   let cust = state.customers.find(c => c.name.toLowerCase() === name.toLowerCase());
   if (!cust) { cust = { id: uid(), name, entries: [] }; state.customers.push(cust); }
   cust.entries.push({ id: uid(), date, amount, item: item || 'Rent' });
-  save();
-  closeModal();
-  toast('Saved & uploading to cloud ✓');
+  save(); closeModal(); toast('Saved & uploading to cloud ✓');
   goMonth(monthOf(date));
 }
 
@@ -1293,10 +1274,9 @@ document.getElementById('confirm-extend-btn').onclick = confirmExtend;
 document.getElementById('close-item-modal').onclick = closeItemModal;
 document.getElementById('cancel-item-btn').onclick = closeItemModal;
 document.getElementById('save-item-btn').onclick = saveItem;
+
 document.getElementById('logout-btn').onclick = () => {
   if (!confirm('Sign out?')) return;
-  if (unsubShop) unsubShop();
-  if (unsubAccounts) unsubAccounts();
   setSession(null);
   location.reload();
 };
@@ -1309,7 +1289,7 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
 // ============================================================
@@ -1332,6 +1312,7 @@ document.querySelectorAll('.gate-tab').forEach(tab => {
     const isLogin = tab.dataset.tab === 'login';
     document.getElementById('tab-login').style.display = isLogin ? 'block' : 'none';
     document.getElementById('tab-activate').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('gate-tabs').style.display = 'flex';
     document.getElementById('gate-subtitle').textContent = isLogin ? 'Sign in to continue' : 'Activate your account';
   };
 });
@@ -1358,10 +1339,12 @@ document.getElementById('activate-btn').onclick = () => {
   if (!username || username.length < 3) return showGateMsg('Username must be 3+ characters');
   if (!/^[a-z0-9_]+$/.test(username)) return showGateMsg('Username: letters, numbers, _ only');
   if (!password || password.length < 4) return showGateMsg('Password must be 4+ characters');
+
   const list = [...getAccounts()];
   const pending = list.find(a => a.activationCode === code && !a.activated);
   if (!pending) return showGateMsg('Invalid or already-used activation code');
   if (list.find(a => a.username === username)) return showGateMsg('Username already taken');
+
   pending.username = username;
   pending.password = password;
   pending.activated = true;
@@ -1386,30 +1369,27 @@ function startApp() {
     return;
   }
   currentUser = acc;
-  loadFromLocal();
-  viewState = { mode: 'month', month: currentMonthKey(), customerId: null, fromMonth: null };
+  load();
+  state.view.month = currentMonthKey();
+  state.viewMode = 'app';
   hideGate();
 
   cloudStatus = navigator.onLine ? 'online' : 'offline';
   updateCloudPill();
   render();
 
-  // live subscribe — this also delivers first snapshot
-  subscribeShop();
+  // Auto-sync on login if online
+  if (navigator.onLine) setTimeout(() => syncDown(false), 800);
 }
 
-// Expiry check every 60s (lighter than 30s)
 setInterval(() => {
   if (currentUser && currentUser.role !== 'admin' && isExpired(currentUser)) {
     toast('Access expired. Contact seller.');
     setSession(null);
     setTimeout(() => location.reload(), 1500);
   }
-}, 60000);
+}, 30000);
 
-// ============================================================
-// INIT
-// ============================================================
 (async () => {
   try { await initAccounts(); }
   catch (e) { console.error('Init accounts failed:', e); }
