@@ -339,8 +339,6 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-
-// Firebase helpers exposed globally
 const FB = { ref, onValue, set, db };
 
 // ============================================================
@@ -350,11 +348,10 @@ const ACCOUNTS_KEY = 'srm_accounts';
 const SESSION_KEY  = 'srm_session';
 const DATA_PREFIX  = 'srm_data_';
 const ADMIN_USER   = 'admin';
-const ADMIN_PASS   = 'sadafahad@01';   // ⚠ change before selling
+const ADMIN_PASS   = 'sadafahad@01';
 
 // ============================================================
 // ACCOUNTS STORAGE
-// Accounts are shared across devices via Firebase: /accounts
 // ============================================================
 let ACCOUNTS_CACHE = [];
 
@@ -368,13 +365,11 @@ function setAccounts(list) {
 }
 
 async function initAccounts() {
-  // Load local first (fast)
   try {
     const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
     ACCOUNTS_CACHE = local;
   } catch { ACCOUNTS_CACHE = []; }
 
-  // Subscribe to Firebase — real-time updates
   return new Promise(resolve => {
     const accRef = FB.ref(FB.db, 'accounts');
     let firstFire = true;
@@ -384,7 +379,6 @@ async function initAccounts() {
         ACCOUNTS_CACHE = val;
         localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(val));
       } else if (firstFire) {
-        // Firebase empty — seed it with local or default admin
         const seed = ACCOUNTS_CACHE.length ? ACCOUNTS_CACHE : [{
           id: 'admin', name: 'Administrator', username: ADMIN_USER,
           password: ADMIN_PASS, role: 'admin',
@@ -446,7 +440,7 @@ function setDur(prefix, y, mo, d, h) {
 window.setDur = setDur;
 
 // ============================================================
-// PER-USER SHOP DATA (synced to Firebase)
+// PER-USER SHOP DATA
 // ============================================================
 let currentUser = null;
 let state = { customers: [], view: { type: 'month', month: '' }, viewMode: 'app' };
@@ -466,14 +460,12 @@ function save() {
 
 function load() {
   if (!currentUser) return;
-  // Local first
   try {
     const raw = localStorage.getItem(dataKey());
     if (raw) { state.customers = (JSON.parse(raw).customers) || []; }
     else state.customers = [];
   } catch { state.customers = []; }
 
-  // Then live Firebase subscription
   if (unsubShop) unsubShop();
   const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
   FB.onValue(shopRef, (snap) => {
@@ -774,7 +766,6 @@ function handleUserAction(action, id) {
   if (action === 'extend') { openExtendModal(id); return; }
   if (action === 'delete') {
     if (!confirm(`Delete ${u.name}? Their data on ALL devices will be removed too.`)) return;
-    // Delete shop data from Firebase
     if (FB && FB.db) FB.set(FB.ref(FB.db, 'shops/' + u.id), null);
     localStorage.removeItem(DATA_PREFIX + u.id);
     const idx = list.findIndex(x => x.id === id);
@@ -1050,7 +1041,7 @@ document.getElementById('activate-btn').onclick = () => {
 };
 
 // ============================================================
-// START
+// START — forces fresh login every page load
 // ============================================================
 function startApp() {
   const s = getSession();
@@ -1070,7 +1061,6 @@ function startApp() {
   render();
 }
 
-// Re-check every 30 seconds
 setInterval(() => {
   if (currentUser && currentUser.role !== 'admin' && isExpired(currentUser)) {
     toast('Access expired. Contact seller.');
@@ -1079,13 +1069,14 @@ setInterval(() => {
   }
 }, 30000);
 
-// ============================================================
-// INIT — wait for Firebase accounts to load
-// ============================================================
+// Init
 (async () => {
   try { await initAccounts(); }
   catch (e) { console.error('Init accounts failed:', e); }
-  startApp();
+
+  // 🔒 Force fresh login every time page opens — clear any saved session
+  setSession(null);
+  showGate();
 })();
 </script>
 </body>
