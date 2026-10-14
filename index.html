@@ -14,7 +14,6 @@
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-/* LOGIN / GATE SCREEN */
 .gate { position: fixed; inset: 0; background: linear-gradient(160deg, var(--green), var(--green-dark)); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 500; overflow-y: auto; }
 .gate.hidden { display: none; }
 .gate-card { background: white; border-radius: 16px; padding: 26px 22px; width: 100%; max-width: 400px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
@@ -38,7 +37,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .btn-ghost { background: transparent; color: var(--muted); font-size: 0.82rem; padding: 8px; margin-top: 4px; }
 .gate-footer { text-align: center; margin-top: 14px; font-size: 0.78rem; color: var(--muted); }
 
-/* header, sidebar, etc. — same as before */
 .header { position: sticky; top: 0; z-index: 10; background: var(--green); color: white; padding: 14px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .header h1 { font-size: 1.02rem; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .icon-btn { background: none; border: none; color: white; font-size: 1.5rem; padding: 4px 8px; cursor: pointer; border-radius: 6px; }
@@ -117,20 +115,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .fab { position: fixed; bottom: 20px; right: 20px; z-index: 20; width: 58px; height: 58px; border-radius: 50%; background: var(--green); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 14px rgba(13,110,79,0.4); display: flex; align-items: center; justify-content: center; line-height: 1; }
 .fab:active { background: var(--green-dark); transform: scale(0.96); }
 
-/* ADMIN PANEL */
 .admin-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
 .admin-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
 .admin-card h3 { font-size: 1rem; margin-bottom: 12px; }
-.user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
 .user-row:last-child { border-bottom: none; }
-.user-row .ur-left { flex: 1; min-width: 0; }
+.user-row .ur-left { flex: 1; min-width: 200px; }
 .user-row .ur-name { font-weight: 600; margin-bottom: 2px; }
 .user-row .ur-meta { font-size: 0.78rem; color: var(--muted); }
 .status-pill { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
 .status-active { background: var(--green-light); color: var(--green-dark); }
 .status-expired { background: #fdecea; color: #b3261e; }
 .status-disabled { background: #eee; color: #555; }
-.user-row .ur-actions { display: flex; gap: 6px; }
+.user-row .ur-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .tiny-btn { padding: 7px 10px; font-size: 0.75rem; border-radius: 7px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer; color: var(--text); }
 .tiny-btn.danger { color: var(--red); border-color: #f3c9c4; }
 .tiny-btn.primary { background: var(--green); color: white; border-color: var(--green); }
@@ -141,11 +138,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .stat-box .sb-value { font-size: 1.4rem; font-weight: 700; color: var(--green-dark); margin-top: 4px; }
 
 .pw-reveal { font-family: monospace; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+.dur-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dur-grid label { font-size: 0.72rem; color: var(--muted); }
+.quick-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 </style>
 </head>
 <body>
 
-<!-- ================= GATE (LOGIN) SCREEN ================= -->
 <div class="gate" id="gate">
   <div class="gate-card">
     <div class="gate-logo">
@@ -153,55 +152,39 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <h1>Shop Rent Manager</h1>
       <p id="gate-subtitle">Sign in to continue</p>
     </div>
-
     <div class="gate-tabs" id="gate-tabs">
       <button class="gate-tab active" data-tab="login">Login</button>
       <button class="gate-tab" data-tab="activate">Enter Code</button>
     </div>
-
     <div class="gate-msg" id="gate-msg"></div>
-
-    <!-- LOGIN TAB -->
     <div id="tab-login">
-      <div class="form-group">
-        <label>Username</label>
+      <div class="form-group"><label>Username</label>
         <input type="text" id="login-user" autocomplete="username" placeholder="your username">
       </div>
-      <div class="form-group">
-        <label>Password</label>
+      <div class="form-group"><label>Password</label>
         <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
       </div>
       <button class="btn btn-primary" id="login-btn">Sign In</button>
     </div>
-
-    <!-- ACTIVATE TAB -->
     <div id="tab-activate" style="display:none;">
       <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;text-align:center;">Enter the activation code you received from the seller.</p>
-      <div class="form-group">
-        <label>Activation Code</label>
+      <div class="form-group"><label>Activation Code</label>
         <input type="text" id="activate-code" placeholder="XXXX-XXXX-XXXX" style="text-transform:uppercase;font-family:monospace;letter-spacing:2px;text-align:center;">
       </div>
-      <div class="form-group">
-        <label>Choose Username</label>
+      <div class="form-group"><label>Choose Username</label>
         <input type="text" id="activate-user" placeholder="pick a username" autocomplete="off">
       </div>
-      <div class="form-group">
-        <label>Choose Password</label>
+      <div class="form-group"><label>Choose Password</label>
         <input type="password" id="activate-pass" placeholder="min 4 characters" autocomplete="new-password">
       </div>
       <button class="btn btn-primary" id="activate-btn">Activate Account</button>
     </div>
-
-    <div class="gate-footer">
-      <p>Contact seller to buy access</p>
-    </div>
+    <div class="gate-footer"><p>Contact seller to buy access</p></div>
   </div>
 </div>
 
-<!-- ================= MAIN APP ================= -->
 <div id="app-root" style="display:none;">
   <div class="overlay" id="overlay"></div>
-
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <h2>🏪 Shop Rent Manager</h2>
@@ -224,22 +207,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <button class="mini-btn" id="logout-btn" style="color:var(--red);border-color:#f3c9c4;">Sign Out</button>
     </div>
   </aside>
-
   <header class="header">
     <button class="icon-btn" id="menu-btn">☰</button>
     <h1 id="header-title">Shop Rent Manager</h1>
     <span class="badge-admin" id="admin-badge" style="display:none;">Admin</span>
   </header>
-
   <main class="main" id="app"></main>
   <button class="fab" id="fab">＋</button>
 </div>
 
-<!-- ================= ADD ENTRY MODAL ================= -->
 <div class="modal" id="add-modal">
   <div class="modal-sheet">
-    <div class="modal-title">
-      <span>Add Rent Entry</span>
+    <div class="modal-title"><span>Add Rent Entry</span>
       <button class="icon-btn" id="close-modal" style="color:#666;font-size:1.3rem;">✕</button>
     </div>
     <div class="form-group"><label>Customer Name</label>
@@ -262,11 +241,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- ================= CREATE USER MODAL (ADMIN) ================= -->
 <div class="modal" id="user-modal">
   <div class="modal-sheet">
-    <div class="modal-title">
-      <span>Create User</span>
+    <div class="modal-title"><span>Create User</span>
       <button class="icon-btn" id="close-user-modal" style="color:#666;font-size:1.3rem;">✕</button>
     </div>
     <div class="form-group"><label>Shopkeeper Name</label>
@@ -278,14 +255,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="form-group"><label>Password</label>
       <input type="text" id="u-pass" placeholder="set a password" autocomplete="off">
     </div>
-    <div class="form-group"><label>Access Duration</label>
-      <select id="u-days">
-        <option value="7">7 days (Trial)</option>
-        <option value="30" selected>30 days</option>
-        <option value="90">90 days</option>
-        <option value="365">1 year</option>
-        <option value="3650">10 years (Lifetime)</option>
-      </select>
+    <div class="form-group">
+      <label>Access Duration</label>
+      <div class="dur-grid">
+        <div><label>Years</label><input type="number" id="cu-years" value="0" min="0" max="20" style="text-align:center;"></div>
+        <div><label>Months</label><input type="number" id="cu-months" value="1" min="0" max="120" style="text-align:center;"></div>
+        <div><label>Days</label><input type="number" id="cu-days" value="0" min="0" max="365" style="text-align:center;"></div>
+        <div><label>Hours</label><input type="number" id="cu-hours" value="0" min="0" max="720" style="text-align:center;"></div>
+      </div>
+      <div class="quick-row">
+        <button type="button" class="tiny-btn" onclick="setDur('cu',0,0,1,0)">1 day</button>
+        <button type="button" class="tiny-btn" onclick="setDur('cu',0,0,7,0)">7 days</button>
+        <button type="button" class="tiny-btn" onclick="setDur('cu',0,1,0,0)">1 month</button>
+        <button type="button" class="tiny-btn" onclick="setDur('cu',0,3,0,0)">3 months</button>
+        <button type="button" class="tiny-btn" onclick="setDur('cu',0,6,0,0)">6 months</button>
+        <button type="button" class="tiny-btn" onclick="setDur('cu',1,0,0,0)">1 year</button>
+      </div>
     </div>
     <div class="form-actions">
       <button class="btn btn-secondary" id="cancel-user-btn">Cancel</button>
@@ -294,43 +279,135 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
+<div class="modal" id="extend-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span>Extend Access</span>
+      <button class="icon-btn" id="close-extend-modal" style="color:#666;font-size:1.3rem;">✕</button>
+    </div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">
+      Extending <strong id="extend-username"></strong>
+    </p>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;">
+      Current: <span id="extend-current"></span>
+    </p>
+    <input type="hidden" id="extend-id">
+    <div class="form-group">
+      <label>Add Duration</label>
+      <div class="dur-grid">
+        <div><label>Years</label><input type="number" id="ex-years" value="0" min="0" max="20" style="text-align:center;"></div>
+        <div><label>Months</label><input type="number" id="ex-months" value="1" min="0" max="120" style="text-align:center;"></div>
+        <div><label>Days</label><input type="number" id="ex-days" value="0" min="0" max="365" style="text-align:center;"></div>
+        <div><label>Hours</label><input type="number" id="ex-hours" value="0" min="0" max="720" style="text-align:center;"></div>
+      </div>
+      <div class="quick-row">
+        <button type="button" class="tiny-btn" onclick="setDur('ex',0,0,1,0)">1 day</button>
+        <button type="button" class="tiny-btn" onclick="setDur('ex',0,0,7,0)">7 days</button>
+        <button type="button" class="tiny-btn" onclick="setDur('ex',0,1,0,0)">1 month</button>
+        <button type="button" class="tiny-btn" onclick="setDur('ex',0,3,0,0)">3 months</button>
+        <button type="button" class="tiny-btn" onclick="setDur('ex',0,6,0,0)">6 months</button>
+        <button type="button" class="tiny-btn" onclick="setDur('ex',1,0,0,0)">1 year</button>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancel-extend-btn">Cancel</button>
+      <button class="btn btn-primary" id="confirm-extend-btn">Extend Access</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
 // ============================================================
-// STORAGE KEYS
+// FIREBASE IMPORTS
 // ============================================================
-const ACCOUNTS_KEY = 'srm_accounts';     // all user accounts
-const SESSION_KEY  = 'srm_session';      // current logged-in user
-const DATA_PREFIX  = 'srm_data_';        // per-user data: srm_data_<userId>
-const ADMIN_USER   = 'admin';            // admin username
-const ADMIN_PASS   = 'sadafahad@01';         // ⚠ CHANGE THIS before selling!
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 // ============================================================
-// AUTH STORAGE
+// 🔥 YOUR FIREBASE CONFIG
 // ============================================================
-function getAccounts() {
-  try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || []; }
-  catch { return []; }
-}
-function setAccounts(list) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); }
+const firebaseConfig = {
+  apiKey: "AIzaSyBCd7XOvTThXof8HFJ6K9zECPf_swj5zIk",
+  authDomain: "rent-management-78488.firebaseapp.com",
+  databaseURL: "https://rent-management-78488-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rent-management-78488",
+  storageBucket: "rent-management-78488.firebasestorage.app",
+  messagingSenderId: "877666314630",
+  appId: "1:877666314630:web:1c5647f642819a44152407"
+};
 
-function initAdmin() {
-  const list = getAccounts();
-  if (!list.find(a => a.username === ADMIN_USER)) {
-    list.push({
-      id: 'admin',
-      name: 'Administrator',
-      username: ADMIN_USER,
-      password: ADMIN_PASS,
-      role: 'admin',
-      createdAt: Date.now(),
-      expiresAt: null,
-      disabled: false
-    });
-    setAccounts(list);
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+// Firebase helpers exposed globally
+const FB = { ref, onValue, set, db };
+
+// ============================================================
+// CONFIG
+// ============================================================
+const ACCOUNTS_KEY = 'srm_accounts';
+const SESSION_KEY  = 'srm_session';
+const DATA_PREFIX  = 'srm_data_';
+const ADMIN_USER   = 'admin';
+const ADMIN_PASS   = 'sadafahad@01';   // ⚠ change before selling
+
+// ============================================================
+// ACCOUNTS STORAGE
+// Accounts are shared across devices via Firebase: /accounts
+// ============================================================
+let ACCOUNTS_CACHE = [];
+
+function getAccounts() { return ACCOUNTS_CACHE; }
+function setAccounts(list) {
+  ACCOUNTS_CACHE = list;
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
+  if (FB && FB.db) {
+    FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error('FB accounts save err', e));
   }
 }
+
+async function initAccounts() {
+  // Load local first (fast)
+  try {
+    const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
+    ACCOUNTS_CACHE = local;
+  } catch { ACCOUNTS_CACHE = []; }
+
+  // Subscribe to Firebase — real-time updates
+  return new Promise(resolve => {
+    const accRef = FB.ref(FB.db, 'accounts');
+    let firstFire = true;
+    FB.onValue(accRef, (snap) => {
+      const val = snap.val();
+      if (Array.isArray(val)) {
+        ACCOUNTS_CACHE = val;
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(val));
+      } else if (firstFire) {
+        // Firebase empty — seed it with local or default admin
+        const seed = ACCOUNTS_CACHE.length ? ACCOUNTS_CACHE : [{
+          id: 'admin', name: 'Administrator', username: ADMIN_USER,
+          password: ADMIN_PASS, role: 'admin',
+          createdAt: Date.now(), expiresAt: null, disabled: false
+        }];
+        ACCOUNTS_CACHE = seed;
+        FB.set(accRef, seed);
+      }
+      firstFire = false;
+      resolve();
+    });
+  });
+}
+
+function isExpired(acc) {
+  if (!acc.expiresAt) return false;
+  return Date.now() > acc.expiresAt;
+}
+function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ============================================================
+// SESSION
+// ============================================================
 function getSession() {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
   catch { return null; }
@@ -339,40 +416,74 @@ function setSession(s) {
   if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
   else localStorage.removeItem(SESSION_KEY);
 }
-function isExpired(acc) {
-  if (!acc.expiresAt) return false;
-  return Date.now() > acc.expiresAt;
-}
-function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function genCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
-  for (let i = 0; i < 12; i++) {
-    s += chars[Math.floor(Math.random()*chars.length)];
-    if (i === 3 || i === 7) s += '-';
-  }
-  return s;
-}
 
 // ============================================================
-// PER-USER DATA
+// DURATION HELPERS
+// ============================================================
+function durationToMs(d) {
+  const year = 365 * 24 * 60 * 60 * 1000;
+  const month = 30 * 24 * 60 * 60 * 1000;
+  const day = 24 * 60 * 60 * 1000;
+  const hour = 60 * 60 * 1000;
+  return (d.y||0)*year + (d.mo||0)*month + (d.d||0)*day + (d.h||0)*hour;
+}
+function formatRemaining(ms) {
+  if (ms <= 0) return 'Expired';
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  if (d > 0) return `${d}d ${h}h left`;
+  if (h > 0) return `${h}h ${m}m left`;
+  return `${m}m left`;
+}
+function setDur(prefix, y, mo, d, h) {
+  document.getElementById(prefix + '-years').value = y;
+  document.getElementById(prefix + '-months').value = mo;
+  document.getElementById(prefix + '-days').value = d;
+  document.getElementById(prefix + '-hours').value = h;
+}
+window.setDur = setDur;
+
+// ============================================================
+// PER-USER SHOP DATA (synced to Firebase)
 // ============================================================
 let currentUser = null;
 let state = { customers: [], view: { type: 'month', month: '' }, viewMode: 'app' };
 let searchQuery = '';
+let unsubShop = null;
 
 function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
+
 function save() {
   if (!currentUser) return;
   localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
+  if (FB && FB.db) {
+    FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), { customers: state.customers })
+      .catch(e => console.error('FB shop save err', e));
+  }
 }
+
 function load() {
   if (!currentUser) return;
+  // Local first
   try {
     const raw = localStorage.getItem(dataKey());
-    if (raw) { const d = JSON.parse(raw); state.customers = d.customers || []; }
+    if (raw) { state.customers = (JSON.parse(raw).customers) || []; }
     else state.customers = [];
   } catch { state.customers = []; }
+
+  // Then live Firebase subscription
+  if (unsubShop) unsubShop();
+  const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
+  FB.onValue(shopRef, (snap) => {
+    const val = snap.val();
+    if (val && Array.isArray(val.customers)) {
+      state.customers = val.customers;
+      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
+      if (document.getElementById('app-root').style.display !== 'none') render();
+    }
+  });
 }
 
 // ============================================================
@@ -409,7 +520,7 @@ function money(n) {
   }
   return (neg ? '-' : '') + 'Rs. ' + result + (decPart ? '.' + decPart : '');
 }
-function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 function escapeAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
 // ============================================================
@@ -470,14 +581,10 @@ function renderSidebar() {
   });
   document.getElementById('all-total').textContent = money(getAllTimeTotal());
 
-  // user box
   const ub = document.getElementById('user-box');
   if (currentUser) {
     let expiry = 'No expiry';
-    if (currentUser.expiresAt) {
-      const days = Math.ceil((currentUser.expiresAt - Date.now()) / 86400000);
-      expiry = days > 0 ? `${days} day${days===1?'':'s'} left` : 'Expired';
-    }
+    if (currentUser.expiresAt) expiry = formatRemaining(currentUser.expiresAt - Date.now());
     ub.innerHTML = `<strong>${escapeHtml(currentUser.name)}</strong><br>@${escapeHtml(currentUser.username)} · ${expiry}`;
     if (currentUser.role === 'admin') {
       document.getElementById('admin-link').style.display = 'flex';
@@ -519,7 +626,7 @@ function updateCustList() {
     return;
   }
   el.innerHTML = filtered.map(x => `
-    <div class="customer-card" data-id="${x.customer.id}">
+    <div class="customer-card" data-id="${escapeAttr(x.customer.id)}">
       <div class="cc-left">
         <div class="cc-name">${escapeHtml(x.customer.name)}</div>
         <div class="cc-meta">${x.entries.length} ${x.entries.length===1?'entry':'entries'} this month</div>
@@ -609,20 +716,22 @@ function renderAdmin() {
           <button class="tiny-btn primary" id="new-user-btn">＋ New User</button>
         </div>
         ${accounts.length === 0
-          ? `<div class="empty-state" style="padding:24px;"><div>No users yet. Tap "New User" to create one.</div></div>`
+          ? `<div class="empty-state" style="padding:24px;"><div>No users yet. Tap "New User".</div></div>`
           : accounts.map(u => {
               const expired = isExpired(u);
               const status = u.disabled ? 'disabled' : (expired ? 'expired' : 'active');
               const statusClass = status === 'active' ? 'status-active' : status === 'expired' ? 'status-expired' : 'status-disabled';
-              const expText = u.expiresAt ? new Date(u.expiresAt).toLocaleDateString() : '—';
+              const remaining = u.expiresAt ? formatRemaining(u.expiresAt - Date.now()) : 'No expiry';
+              const expText = u.expiresAt ? new Date(u.expiresAt).toLocaleString() : '—';
               return `
                 <div class="user-row">
                   <div class="ur-left">
                     <div class="ur-name">${escapeHtml(u.name)} <span class="status-pill ${statusClass}">${status}</span></div>
                     <div class="ur-meta">@${escapeHtml(u.username)} · pw: <span class="pw-reveal">${escapeHtml(u.password)}</span></div>
-                    <div class="ur-meta">Expires: ${expText}</div>
+                    <div class="ur-meta">⏱ ${remaining} · ends ${expText}</div>
                   </div>
                   <div class="ur-actions">
+                    <button class="tiny-btn primary" data-action="extend" data-id="${u.id}">⏱ Extend</button>
                     ${u.disabled
                       ? `<button class="tiny-btn" data-action="enable" data-id="${u.id}">Enable</button>`
                       : `<button class="tiny-btn danger" data-action="disable" data-id="${u.id}">Disable</button>`}
@@ -650,37 +759,69 @@ function renderAdmin() {
   document.getElementById('save-admin-pass').onclick = () => {
     const v = document.getElementById('new-admin-pass').value.trim();
     if (v.length < 4) return toast('Password must be 4+ characters');
-    const list = getAccounts();
+    const list = [...getAccounts()];
     const a = list.find(x => x.role === 'admin');
     if (a) { a.password = v; setAccounts(list); toast('Admin password updated ✓'); }
   };
 }
 
 function handleUserAction(action, id) {
-  const list = getAccounts();
+  const list = [...getAccounts()];
   const u = list.find(x => x.id === id);
   if (!u) return;
-  if (action === 'disable') { u.disabled = true; }
-  else if (action === 'enable') {
-    u.disabled = false;
-    if (isExpired(u)) {
-      const days = prompt('Account is expired. Extend by how many days?', '30');
-      if (!days) return;
-      u.expiresAt = Date.now() + (parseInt(days)*86400000);
-    }
-  }
-  else if (action === 'delete') {
-    if (!confirm(`Delete ${u.name}? Their data on THIS device will be removed too.`)) return;
+  if (action === 'disable') { u.disabled = true; setAccounts(list); toast('User disabled'); renderAdmin(); return; }
+  if (action === 'enable') { u.disabled = false; setAccounts(list); toast('User enabled'); renderAdmin(); return; }
+  if (action === 'extend') { openExtendModal(id); return; }
+  if (action === 'delete') {
+    if (!confirm(`Delete ${u.name}? Their data on ALL devices will be removed too.`)) return;
+    // Delete shop data from Firebase
+    if (FB && FB.db) FB.set(FB.ref(FB.db, 'shops/' + u.id), null);
     localStorage.removeItem(DATA_PREFIX + u.id);
     const idx = list.findIndex(x => x.id === id);
     list.splice(idx, 1);
     setAccounts(list);
     toast('User deleted');
     renderAdmin();
-    return;
   }
+}
+
+// ============================================================
+// EXTEND MODAL
+// ============================================================
+function openExtendModal(id) {
+  const list = getAccounts();
+  const u = list.find(x => x.id === id);
+  if (!u) return;
+  const currentEnd = u.expiresAt && new Date(u.expiresAt) > new Date()
+    ? new Date(u.expiresAt).toLocaleString()
+    : '(already expired)';
+  document.getElementById('extend-username').textContent = u.name;
+  document.getElementById('extend-current').textContent = currentEnd;
+  setDur('ex', 0, 1, 0, 0);
+  document.getElementById('extend-id').value = id;
+  document.getElementById('extend-modal').classList.add('open');
+}
+
+function confirmExtend() {
+  const id = document.getElementById('extend-id').value;
+  const y = parseInt(document.getElementById('ex-years').value) || 0;
+  const mo = parseInt(document.getElementById('ex-months').value) || 0;
+  const d = parseInt(document.getElementById('ex-days').value) || 0;
+  const h = parseInt(document.getElementById('ex-hours').value) || 0;
+
+  const ms = durationToMs({ y, mo, d, h });
+  if (ms <= 0) return toast('Pick a duration greater than 0');
+
+  const list = [...getAccounts()];
+  const u = list.find(x => x.id === id);
+  if (!u) return;
+
+  const base = (u.expiresAt && u.expiresAt > Date.now()) ? u.expiresAt : Date.now();
+  u.expiresAt = base + ms;
+
   setAccounts(list);
-  toast('Updated ✓');
+  toast(`Extended by ${y}y ${mo}mo ${d}d ${h}h`);
+  document.getElementById('extend-modal').classList.remove('open');
   renderAdmin();
 }
 
@@ -721,7 +862,7 @@ function openUserModal() {
   document.getElementById('u-name').value = '';
   document.getElementById('u-user').value = '';
   document.getElementById('u-pass').value = '';
-  document.getElementById('u-days').value = '30';
+  setDur('cu', 0, 1, 0, 0);
   document.getElementById('user-modal').classList.add('open');
 }
 function closeUserModal() { document.getElementById('user-modal').classList.remove('open'); }
@@ -730,26 +871,32 @@ function createUser() {
   const name = document.getElementById('u-name').value.trim();
   const username = document.getElementById('u-user').value.trim().toLowerCase();
   const password = document.getElementById('u-pass').value.trim();
-  const days = parseInt(document.getElementById('u-days').value);
+  const y = parseInt(document.getElementById('cu-years').value) || 0;
+  const mo = parseInt(document.getElementById('cu-months').value) || 0;
+  const d = parseInt(document.getElementById('cu-days').value) || 0;
+  const h = parseInt(document.getElementById('cu-hours').value) || 0;
 
   if (!name) return toast('Enter shopkeeper name');
   if (!username || username.length < 3) return toast('Username must be 3+ characters');
   if (!/^[a-z0-9_]+$/.test(username)) return toast('Username: letters, numbers, _ only');
   if (!password || password.length < 4) return toast('Password must be 4+ characters');
 
-  const list = getAccounts();
+  const ms = durationToMs({ y, mo, d, h });
+  if (ms <= 0) return toast('Set an access duration greater than 0');
+
+  const list = [...getAccounts()];
   if (list.find(a => a.username === username)) return toast('Username already taken');
 
   const newUser = {
     id: genId(), name, username, password,
     role: 'shopkeeper',
     createdAt: Date.now(),
-    expiresAt: Date.now() + days * 86400000,
+    expiresAt: Date.now() + ms,
     disabled: false
   };
   list.push(newUser);
   setAccounts(list);
-  toast(`User created ✓ Give ${name}: @${username} / ${password}`);
+  toast(`✓ Created. @${username} / ${password}`);
   closeUserModal();
   renderAdmin();
 }
@@ -790,6 +937,9 @@ document.getElementById('admin-link').onclick = goAdmin;
 document.getElementById('close-user-modal').onclick = closeUserModal;
 document.getElementById('cancel-user-btn').onclick = closeUserModal;
 document.getElementById('create-user-btn').onclick = createUser;
+document.getElementById('close-extend-modal').onclick = () => document.getElementById('extend-modal').classList.remove('open');
+document.getElementById('cancel-extend-btn').onclick = () => document.getElementById('extend-modal').classList.remove('open');
+document.getElementById('confirm-extend-btn').onclick = confirmExtend;
 
 document.getElementById('logout-btn').onclick = () => {
   if (!confirm('Sign out?')) return;
@@ -837,18 +987,14 @@ function toast(msg) {
 }
 
 // ============================================================
-// GATE (LOGIN / ACTIVATE)
+// GATE
 // ============================================================
 function showGateMsg(msg, type) {
   const el = document.getElementById('gate-msg');
   el.textContent = msg;
   el.className = 'gate-msg ' + (type || 'error');
 }
-function clearGateMsg() {
-  const el = document.getElementById('gate-msg');
-  el.className = 'gate-msg';
-  el.textContent = '';
-}
+function clearGateMsg() { document.getElementById('gate-msg').className = 'gate-msg'; }
 function hideGate() { document.getElementById('gate').classList.add('hidden'); document.getElementById('app-root').style.display = 'block'; }
 function showGate() { document.getElementById('gate').classList.remove('hidden'); document.getElementById('app-root').style.display = 'none'; }
 
@@ -888,8 +1034,7 @@ document.getElementById('activate-btn').onclick = () => {
   if (!/^[a-z0-9_]+$/.test(username)) return showGateMsg('Username: letters, numbers, _ only');
   if (!password || password.length < 4) return showGateMsg('Password must be 4+ characters');
 
-  // Look for a "pending" account created by admin with matching code.
-  const list = getAccounts();
+  const list = [...getAccounts()];
   const pending = list.find(a => a.activationCode === code && !a.activated);
   if (!pending) return showGateMsg('Invalid or already-used activation code');
   if (list.find(a => a.username === username)) return showGateMsg('Username already taken');
@@ -905,7 +1050,7 @@ document.getElementById('activate-btn').onclick = () => {
 };
 
 // ============================================================
-// START APP
+// START
 // ============================================================
 function startApp() {
   const s = getSession();
@@ -925,20 +1070,23 @@ function startApp() {
   render();
 }
 
-// ============================================================
-// INIT
-// ============================================================
-initAdmin();
-startApp();
-
-// Re-check expiry every 30 seconds
+// Re-check every 30 seconds
 setInterval(() => {
-  if (currentUser && isExpired(currentUser)) {
+  if (currentUser && currentUser.role !== 'admin' && isExpired(currentUser)) {
     toast('Access expired. Contact seller.');
     setSession(null);
     setTimeout(() => location.reload(), 1500);
   }
 }, 30000);
+
+// ============================================================
+// INIT — wait for Firebase accounts to load
+// ============================================================
+(async () => {
+  try { await initAccounts(); }
+  catch (e) { console.error('Init accounts failed:', e); }
+  startApp();
+})();
 </script>
 </body>
 </html>
