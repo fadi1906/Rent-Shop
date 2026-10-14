@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0d6e4f">
 <title>Shop Rent Manager</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rent Manager">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Shop Rent Manager">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
@@ -413,9 +425,9 @@ let cloudStatus = 'online';
 let lastSyncTime = null;
 let unsubShop = null;
 let unsubAccounts = null;
-let isSyncing = false;      // blocks overlapping writes
-let pendingRemoteUpdate = null;   // debounce remote updates
-let saveTimer = null;       // debounce local saves
+let isSyncing = false;
+let pendingRemoteUpdate = null;
+let saveTimer = null;
 
 // ============================================================
 // CLOUD STATUS
@@ -528,7 +540,7 @@ function setSession(s) {
 }
 
 // ============================================================
-// ACCOUNTS (subscribe once)
+// ACCOUNTS
 // ============================================================
 function getAccounts() { return accountsCache; }
 
@@ -583,7 +595,6 @@ function saveLocalOnly() {
   }));
 }
 
-// Debounced save → prevents hammering Firebase on rapid taps
 function save() {
   saveLocalOnly();
   if (saveTimer) clearTimeout(saveTimer);
@@ -646,7 +657,6 @@ async function syncDown(manual) {
   }
 }
 
-// Live subscription — updates only when cloud data actually differs
 function subscribeShop() {
   if (unsubShop) unsubShop();
   const shopRef = ref(db, 'shops/' + currentUser.id);
@@ -656,7 +666,6 @@ function subscribeShop() {
     const remoteCustomers = val.customers ? toArray(val.customers) : [];
     const remoteItems = val.items ? toArray(val.items) : [];
 
-    // Skip if identical (avoid re-render loops)
     const sameCustomers = JSON.stringify(remoteCustomers) === JSON.stringify(state.customers);
     const sameItems = JSON.stringify(remoteItems) === JSON.stringify(state.items);
     if (sameCustomers && sameItems) {
@@ -664,7 +673,6 @@ function subscribeShop() {
       return;
     }
 
-    // Debounce — Firebase sometimes fires twice quickly
     if (pendingRemoteUpdate) clearTimeout(pendingRemoteUpdate);
     pendingRemoteUpdate = setTimeout(() => {
       state.customers = remoteCustomers;
@@ -1394,11 +1402,9 @@ function startApp() {
   updateCloudPill();
   render();
 
-  // live subscribe — this also delivers first snapshot
   subscribeShop();
 }
 
-// Expiry check every 60s (lighter than 30s)
 setInterval(() => {
   if (currentUser && currentUser.role !== 'admin' && isExpired(currentUser)) {
     toast('Access expired. Contact seller.');
