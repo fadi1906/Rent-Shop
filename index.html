@@ -141,6 +141,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .dur-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .dur-grid label { font-size: 0.72rem; color: var(--muted); }
 .quick-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ITEM LIST */
+.item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: white; }
+.item-row .ir-left { flex: 1; min-width: 0; }
+.item-row .ir-name { font-weight: 600; margin-bottom: 2px; }
+.item-row .ir-price { font-size: 0.8rem; color: var(--green); font-weight: 600; }
+.item-row .ir-actions { display: flex; gap: 6px; }
+
+/* ITEM SELECT in Add Entry */
+.item-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.item-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text); }
+.item-chip:active { background: var(--green-light); }
+.item-chip.selected { background: var(--green); color: white; border-color: var(--green); }
+.item-chip .chip-price { opacity: 0.7; font-weight: 500; margin-left: 4px; }
 </style>
 </head>
 <body>
@@ -195,6 +209,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <button class="add-btn-side" id="side-add">＋ Add Rent Entry</button>
       <div class="sidebar-section-title">Months</div>
       <div id="sidebar-months"></div>
+      <div class="sidebar-section-title">Settings</div>
+      <div class="side-link" id="items-link">📦 <span>Items & Prices</span></div>
       <div class="sidebar-section-title" id="admin-section-title" style="display:none;">Admin</div>
       <div class="side-link" id="admin-link" style="display:none;">👑 <span>Admin Panel</span></div>
     </div>
@@ -216,6 +232,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <button class="fab" id="fab">＋</button>
 </div>
 
+<!-- ADD ENTRY MODAL -->
 <div class="modal" id="add-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span>Add Rent Entry</span>
@@ -225,8 +242,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <input type="text" id="f-name" list="customer-names" placeholder="e.g. Ahmed Ali" autocomplete="off">
       <datalist id="customer-names"></datalist>
     </div>
-    <div class="form-group"><label>Item / Reason</label>
-      <input type="text" id="f-item" placeholder="e.g. Rice bag, Sugar, Grocery" autocomplete="off">
+    <div class="form-group">
+      <label>Item / Reason</label>
+      <div id="item-chips" class="item-chips"></div>
+      <input type="text" id="f-item" placeholder="or type item name" autocomplete="off" style="margin-top:8px;">
     </div>
     <div class="form-group"><label>Amount (PKR)</label>
       <input type="number" id="f-amount" placeholder="0" inputmode="decimal" min="0" step="any">
@@ -241,6 +260,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
+<!-- ADD ITEM MODAL -->
+<div class="modal" id="item-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span id="item-modal-title">Add Item</span>
+      <button class="icon-btn" id="close-item-modal" style="color:#666;font-size:1.3rem;">✕</button>
+    </div>
+    <input type="hidden" id="item-edit-id">
+    <div class="form-group"><label>Item Name</label>
+      <input type="text" id="item-name" placeholder="e.g. Rice bag 5kg" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Default Price (PKR) — optional</label>
+      <input type="number" id="item-price" placeholder="0" inputmode="decimal" min="0" step="any">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancel-item-btn">Cancel</button>
+      <button class="btn btn-primary" id="save-item-btn">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE USER MODAL -->
 <div class="modal" id="user-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span>Create User</span>
@@ -279,6 +319,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
+<!-- EXTEND MODAL -->
 <div class="modal" id="extend-modal">
   <div class="modal-sheet">
     <div class="modal-title"><span>Extend Access</span>
@@ -318,9 +359,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="toast" id="toast"></div>
 
 <script type="module">
-// ============================================================
-// FIREBASE
-// ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -338,9 +376,6 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const FB = { ref, onValue, set, db };
 
-// ============================================================
-// CONFIG
-// ============================================================
 const ACCOUNTS_KEY = 'srm_accounts';
 const SESSION_KEY  = 'srm_session';
 const DATA_PREFIX  = 'srm_data_';
@@ -351,24 +386,18 @@ const ADMIN_PASS   = 'sadafahad@01';
 // ACCOUNTS
 // ============================================================
 let ACCOUNTS_CACHE = [];
-
 function getAccounts() { return ACCOUNTS_CACHE; }
 function setAccounts(list) {
   ACCOUNTS_CACHE = list;
   localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-  if (FB && FB.db) {
-    FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error('FB accounts save err', e));
-  }
+  if (FB && FB.db) FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error(e));
 }
-
-// 🔧 helper: Firebase may return array OR object — normalize both
 function toArray(val) {
   if (!val) return [];
   if (Array.isArray(val)) return val;
   if (typeof val === 'object') return Object.values(val);
   return [];
 }
-
 async function initAccounts() {
   try {
     const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
@@ -398,34 +427,20 @@ async function initAccounts() {
     });
   });
 }
-
-function isExpired(acc) {
-  if (!acc.expiresAt) return false;
-  return Date.now() > acc.expiresAt;
-}
+function isExpired(acc) { return acc.expiresAt ? Date.now() > acc.expiresAt : false; }
 function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 // ============================================================
 // SESSION
 // ============================================================
-function getSession() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
-  catch { return null; }
-}
-function setSession(s) {
-  if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
-  else localStorage.removeItem(SESSION_KEY);
-}
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function setSession(s) { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }
 
 // ============================================================
 // DURATION
 // ============================================================
 function durationToMs(d) {
-  const year = 365 * 24 * 60 * 60 * 1000;
-  const month = 30 * 24 * 60 * 60 * 1000;
-  const day = 24 * 60 * 60 * 1000;
-  const hour = 60 * 60 * 1000;
-  return (d.y||0)*year + (d.mo||0)*month + (d.d||0)*day + (d.h||0)*hour;
+  return (d.y||0)*365*86400000 + (d.mo||0)*30*86400000 + (d.d||0)*86400000 + (d.h||0)*3600000;
 }
 function formatRemaining(ms) {
   if (ms <= 0) return 'Expired';
@@ -446,21 +461,27 @@ function setDur(prefix, y, mo, d, h) {
 window.setDur = setDur;
 
 // ============================================================
-// SHOP DATA
+// SHOP DATA (customers + items)
 // ============================================================
 let currentUser = null;
-let state = { customers: [], view: { type: 'month', month: '' }, viewMode: 'app' };
+let state = {
+  customers: [],
+  items: [],
+  view: { type: 'month', month: '' },
+  viewMode: 'app'
+};
 let searchQuery = '';
 let unsubShop = null;
+let selectedItem = '';
 
 function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
 
 function save() {
   if (!currentUser) return;
-  localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
+  const payload = { customers: state.customers, items: state.items };
+  localStorage.setItem(dataKey(), JSON.stringify(payload));
   if (FB && FB.db) {
-    FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), { customers: state.customers })
-      .catch(e => console.error('FB shop save err', e));
+    FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), payload).catch(e => console.error(e));
   }
 }
 
@@ -468,21 +489,27 @@ function load() {
   if (!currentUser) return;
   try {
     const raw = localStorage.getItem(dataKey());
-    if (raw) { state.customers = (JSON.parse(raw).customers) || []; }
-    else state.customers = [];
-  } catch { state.customers = []; }
+    if (raw) {
+      const d = JSON.parse(raw);
+      state.customers = d.customers || [];
+      state.items = d.items || [];
+    } else { state.customers = []; state.items = []; }
+  } catch { state.customers = []; state.items = []; }
 
   if (unsubShop) unsubShop();
   const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
   FB.onValue(shopRef, (snap) => {
     const val = snap.val();
-    if (val && val.customers) {
-      // 🔧 handle array OR object from Firebase
-      const customers = Array.isArray(val.customers)
-        ? val.customers
-        : Object.values(val.customers);
-      state.customers = customers;
-      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
+    if (val) {
+      if (val.customers) {
+        state.customers = Array.isArray(val.customers) ? val.customers : Object.values(val.customers);
+      }
+      if (val.items) {
+        state.items = Array.isArray(val.items) ? val.items : Object.values(val.items);
+      } else {
+        state.items = [];
+      }
+      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
       if (document.getElementById('app-root').style.display !== 'none') render();
     }
   });
@@ -558,6 +585,7 @@ const app = document.getElementById('app');
 
 function render() {
   if (state.viewMode === 'admin') { renderAdmin(); return; }
+  if (state.viewMode === 'items') { renderItems(); return; }
   if (!state.view.month) state.view.month = currentMonthKey();
   if (state.view.type === 'month') renderMonth();
   else renderCustomer();
@@ -572,7 +600,7 @@ function renderSidebar() {
   const el = document.getElementById('sidebar-months');
   el.innerHTML = months.map(m => {
     const total = getMonthTotal(m);
-    const active = state.view.type === 'month' && state.view.month === m && state.viewMode !== 'admin' ? 'active' : '';
+    const active = state.view.type === 'month' && state.view.month === m && state.viewMode === 'app' ? 'active' : '';
     return `<div class="month-item ${active}" data-month="${m}">
       <span class="m-name">${monthName(m)}</span>
       <span class="m-total">${money(total)}</span>
@@ -692,9 +720,101 @@ function renderCustomer() {
 }
 
 // ============================================================
-// ADMIN
+// ITEMS PAGE
+// ============================================================
+function renderItems() {
+  document.getElementById('header-title').textContent = 'Items & Prices';
+  renderSidebar();
+
+  const items = state.items || [];
+  app.innerHTML = `
+    <button class="back-btn" id="back-items">← Back</button>
+    <div class="admin-card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="margin:0;">📦 My Items</h3>
+        <button class="tiny-btn primary" id="add-item-btn">＋ Add Item</button>
+      </div>
+      <p style="font-size:0.82rem;color:var(--muted);">
+        These items show up as quick buttons when you add a new rent entry.
+      </p>
+    </div>
+    <div id="items-list">
+      ${items.length === 0
+        ? `<div class="empty-state"><div class="es-icon">📦</div><div>No items yet. Tap "Add Item".</div></div>`
+        : items.map(it => `
+          <div class="item-row">
+            <div class="ir-left">
+              <div class="ir-name">${escapeHtml(it.name)}</div>
+              ${it.price ? `<div class="ir-price">Default: ${money(it.price)}</div>` : `<div class="ir-price" style="color:var(--muted);">No default price</div>`}
+            </div>
+            <div class="ir-actions">
+              <button class="tiny-btn" data-edit="${it.id}">Edit</button>
+              <button class="tiny-btn danger" data-del="${it.id}">Delete</button>
+            </div>
+          </div>
+        `).join('')}
+    </div>
+  `;
+
+  document.getElementById('back-items').onclick = () => goMonth(currentMonthKey());
+  document.getElementById('add-item-btn').onclick = () => openItemModal();
+  app.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openItemModal(b.dataset.edit));
+  app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteItem(b.dataset.del));
+}
+
+function openItemModal(id) {
+  const modal = document.getElementById('item-modal');
+  if (id) {
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
+    document.getElementById('item-modal-title').textContent = 'Edit Item';
+    document.getElementById('item-edit-id').value = id;
+    document.getElementById('item-name').value = it.name;
+    document.getElementById('item-price').value = it.price || '';
+  } else {
+    document.getElementById('item-modal-title').textContent = 'Add Item';
+    document.getElementById('item-edit-id').value = '';
+    document.getElementById('item-name').value = '';
+    document.getElementById('item-price').value = '';
+  }
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('item-name').focus(), 300);
+}
+function closeItemModal() { document.getElementById('item-modal').classList.remove('open'); }
+
+function saveItem() {
+  const id = document.getElementById('item-edit-id').value;
+  const name = document.getElementById('item-name').value.trim();
+  const price = parseFloat(document.getElementById('item-price').value) || 0;
+
+  if (!name) return toast('Enter item name');
+
+  if (id) {
+    const it = state.items.find(x => x.id === id);
+    if (it) { it.name = name; it.price = price; }
+  } else {
+    state.items.push({ id: uid(), name, price });
+  }
+  save();
+  closeItemModal();
+  toast('Item saved ✓');
+  if (state.viewMode === 'items') renderItems();
+}
+
+function deleteItem(id) {
+  if (!confirm('Delete this item?')) return;
+  state.items = state.items.filter(x => x.id !== id);
+  save();
+  toast('Item deleted');
+  renderItems();
+}
+
+// ============================================================
+// ADMIN PANEL
 // ============================================================
 function renderAdmin() {
+  document.getElementById('header-title').textContent = 'Admin Panel';
+  renderSidebar();
   const accounts = getAccounts().filter(a => a.role !== 'admin');
   const active = accounts.filter(a => !a.disabled && !isExpired(a)).length;
   const expired = accounts.filter(a => !a.disabled && isExpired(a)).length;
@@ -787,8 +907,7 @@ function handleUserAction(action, id) {
 }
 
 function openExtendModal(id) {
-  const list = getAccounts();
-  const u = list.find(x => x.id === id);
+  const u = getAccounts().find(x => x.id === id);
   if (!u) return;
   const currentEnd = u.expiresAt && new Date(u.expiresAt) > new Date()
     ? new Date(u.expiresAt).toLocaleString()
@@ -813,10 +932,8 @@ function confirmExtend() {
   const list = [...getAccounts()];
   const u = list.find(x => x.id === id);
   if (!u) return;
-
   const base = (u.expiresAt && u.expiresAt > Date.now()) ? u.expiresAt : Date.now();
   u.expiresAt = base + ms;
-
   setAccounts(list);
   toast(`Extended by ${y}y ${mo}mo ${d}d ${h}h`);
   document.getElementById('extend-modal').classList.remove('open');
@@ -829,6 +946,7 @@ function confirmExtend() {
 function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', month: m }; searchQuery = ''; render(); window.scrollTo(0,0); }
 function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
 function goAdmin() { state.viewMode = 'admin'; render(); closeSidebar(); window.scrollTo(0,0); }
+function goItems() { state.viewMode = 'items'; render(); closeSidebar(); window.scrollTo(0,0); }
 
 // ============================================================
 // CRUD
@@ -842,20 +960,54 @@ function deleteEntry(custId, entryId) {
 }
 
 // ============================================================
-// MODALS
+// ADD ENTRY MODAL
 // ============================================================
 function openModal() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-item').value = '';
   document.getElementById('f-amount').value = '';
   document.getElementById('f-date').value = todayISO();
+  selectedItem = '';
+
+  // customer suggestions
   const dl = document.getElementById('customer-names');
   dl.innerHTML = state.customers.map(c => `<option value="${escapeAttr(c.name)}">`).join('');
+
+  // item chips
+  renderItemChips();
+
   document.getElementById('add-modal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 300);
 }
+
+function renderItemChips() {
+  const wrap = document.getElementById('item-chips');
+  const items = state.items || [];
+  if (items.length === 0) {
+    wrap.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);">No items set. Go to <strong>📦 Items & Prices</strong> in the sidebar to add some.</p>`;
+    return;
+  }
+  wrap.innerHTML = items.map(it => `
+    <button type="button" class="item-chip ${selectedItem === it.name ? 'selected' : ''}" data-name="${escapeAttr(it.name)}" data-price="${it.price || 0}">
+      ${escapeHtml(it.name)}${it.price ? `<span class="chip-price">Rs.${it.price}</span>` : ''}
+    </button>
+  `).join('');
+  wrap.querySelectorAll('.item-chip').forEach(chip => {
+    chip.onclick = () => {
+      selectedItem = chip.dataset.name;
+      document.getElementById('f-item').value = selectedItem;
+      const price = parseFloat(chip.dataset.price) || 0;
+      if (price > 0) document.getElementById('f-amount').value = price;
+      renderItemChips();
+    };
+  });
+}
+
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
 
+// ============================================================
+// CREATE USER
+// ============================================================
 function openUserModal() {
   document.getElementById('u-name').value = '';
   document.getElementById('u-user').value = '';
@@ -901,7 +1053,7 @@ function createUser() {
 
 function saveEntry() {
   const name = document.getElementById('f-name').value.trim();
-  const item = document.getElementById('f-item').value.trim();
+  const item = document.getElementById('f-item').value.trim() || selectedItem;
   const amount = parseFloat(document.getElementById('f-amount').value);
   const date = document.getElementById('f-date').value;
 
@@ -928,6 +1080,7 @@ document.getElementById('menu-btn').onclick = openSidebar;
 overlay.onclick = closeSidebar;
 document.getElementById('side-add').onclick = () => { closeSidebar(); setTimeout(openModal, 250); };
 document.getElementById('fab').onclick = openModal;
+document.getElementById('items-link').onclick = goItems;
 document.getElementById('close-modal').onclick = closeModal;
 document.getElementById('cancel-btn').onclick = closeModal;
 document.getElementById('save-btn').onclick = saveEntry;
@@ -938,6 +1091,9 @@ document.getElementById('create-user-btn').onclick = createUser;
 document.getElementById('close-extend-modal').onclick = () => document.getElementById('extend-modal').classList.remove('open');
 document.getElementById('cancel-extend-btn').onclick = () => document.getElementById('extend-modal').classList.remove('open');
 document.getElementById('confirm-extend-btn').onclick = confirmExtend;
+document.getElementById('close-item-modal').onclick = closeItemModal;
+document.getElementById('cancel-item-btn').onclick = closeItemModal;
+document.getElementById('save-item-btn').onclick = saveItem;
 
 document.getElementById('logout-btn').onclick = () => {
   if (!confirm('Sign out?')) return;
@@ -949,7 +1105,7 @@ document.getElementById('logout-btn').onclick = () => {
 // BACKUP
 // ============================================================
 document.getElementById('export-btn').onclick = () => {
-  const data = JSON.stringify({ customers: state.customers, exportedAt: new Date().toISOString() }, null, 2);
+  const data = JSON.stringify({ customers: state.customers, items: state.items, exportedAt: new Date().toISOString() }, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -967,7 +1123,9 @@ document.getElementById('import-file').onchange = (e) => {
       const data = JSON.parse(ev.target.result);
       if (!Array.isArray(data.customers)) throw new Error('Invalid');
       if (!confirm('This will replace ALL current data. Continue?')) return;
-      state.customers = data.customers; save(); render(); toast('Data restored ✓');
+      state.customers = data.customers;
+      state.items = Array.isArray(data.items) ? data.items : [];
+      save(); render(); toast('Data restored ✓');
     } catch { toast('Invalid backup file'); }
   };
   reader.readAsText(file); e.target.value = '';
