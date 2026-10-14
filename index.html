@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d6e4f">
+<title>Shop Rent Manager</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --green: #0d6e4f; --green-dark: #094f39; --green-light: #e6f4ef;
+  --red: #c0392b; --text: #1c2b26; --muted: #6b7a75;
+  --border: #e2e8e5; --bg: #f4f7f6;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+/* LOGIN / GATE SCREEN */
+.gate { position: fixed; inset: 0; background: linear-gradient(160deg, var(--green), var(--green-dark)); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 500; overflow-y: auto; }
+.gate.hidden { display: none; }
+.gate-card { background: white; border-radius: 16px; padding: 26px 22px; width: 100%; max-width: 400px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
+.gate-logo { text-align: center; margin-bottom: 22px; }
+.gate-logo .gl-icon { font-size: 2.5rem; margin-bottom: 6px; }
+.gate-logo h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+.gate-logo p { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+.gate-tabs { display: flex; background: #eef2f0; padding: 4px; border-radius: 10px; margin-bottom: 18px; }
+.gate-tab { flex: 1; text-align: center; padding: 9px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; font-family: inherit; }
+.gate-tab.active { background: white; color: var(--green); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: white; font-family: inherit; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--green); }
+.gate-msg { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 14px; display: none; }
+.gate-msg.error { background: #fdecea; color: #b3261e; display: block; }
+.gate-msg.success { background: var(--green-light); color: var(--green-dark); display: block; }
+.btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.btn-primary { background: var(--green); color: white; }
+.btn-primary:active { background: var(--green-dark); }
+.btn-ghost { background: transparent; color: var(--muted); font-size: 0.82rem; padding: 8px; margin-top: 4px; }
+.gate-footer { text-align: center; margin-top: 14px; font-size: 0.78rem; color: var(--muted); }
+
+/* header, sidebar, etc. — same as before */
+.header { position: sticky; top: 0; z-index: 10; background: var(--green); color: white; padding: 14px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.header h1 { font-size: 1.02rem; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-btn { background: none; border: none; color: white; font-size: 1.5rem; padding: 4px 8px; cursor: pointer; border-radius: 6px; }
+.icon-btn:active { background: rgba(255,255,255,0.15); }
+.badge-admin { background: #ffd54f; color: #5d4000; font-size: 0.62rem; font-weight: 800; padding: 3px 7px; border-radius: 5px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 290px; max-width: 85vw; background: white; z-index: 100; transform: translateX(-100%); transition: transform 0.25s ease; display: flex; flex-direction: column; box-shadow: 2px 0 12px rgba(0,0,0,0.15); }
+.sidebar.open { transform: translateX(0); }
+.sidebar-header { background: var(--green); color: white; padding: 18px 16px; }
+.sidebar-header h2 { font-size: 1rem; margin-bottom: 4px; }
+.sidebar-header p { font-size: 0.82rem; opacity: 0.92; }
+.sidebar-content { flex: 1; overflow-y: auto; padding: 12px 0; }
+.sidebar-section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); padding: 12px 16px 6px; font-weight: 700; }
+.month-item { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 3px solid transparent; }
+.month-item:active { background: var(--green-light); }
+.month-item.active { background: var(--green-light); border-left-color: var(--green); }
+.month-item .m-name { font-weight: 500; font-size: 0.92rem; }
+.month-item .m-total { font-size: 0.82rem; color: var(--green); font-weight: 700; }
+.side-link { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.92rem; font-weight: 500; }
+.side-link:active { background: var(--green-light); }
+.add-btn-side { margin: 12px 16px; background: var(--green); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; width: calc(100% - 32px); }
+.add-btn-side:active { background: var(--green-dark); }
+.sidebar-footer { padding: 10px 16px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.mini-btn { flex:1; padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text); }
+.mini-btn:active { background: var(--green-light); }
+.user-box { padding: 12px 16px; background: #f8fbfa; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+.user-box strong { color: var(--text); }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.overlay.open { opacity: 1; pointer-events: auto; }
+
+.main { padding: 16px; padding-bottom: 90px; max-width: 720px; margin: 0 auto; }
+.month-summary { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.month-summary .ms-label { font-size: 0.8rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+.month-summary .ms-month { font-size: 1.05rem; font-weight: 600; margin: 4px 0 10px; }
+.month-summary .ms-total { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; }
+.search-box { margin-bottom: 14px; }
+.search-box input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: white; }
+.search-box input:focus { outline: none; border-color: var(--green); }
+.customer-card { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+.customer-card:active { background: var(--green-light); }
+.customer-card .cc-left { flex: 1; min-width: 0; }
+.customer-card .cc-name { font-weight: 600; font-size: 1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.customer-card .cc-meta { font-size: 0.78rem; color: var(--muted); }
+.customer-card .cc-right { text-align: right; margin-left: 12px; display: flex; align-items: center; gap: 6px; }
+.customer-card .cc-amount { font-weight: 700; color: var(--green); font-size: 1rem; }
+.customer-card .cc-arrow { color: var(--muted); font-size: 1.2rem; }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+.empty-state .es-icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+.back-btn { background: none; border: none; color: var(--green); font-size: 0.95rem; font-weight: 600; cursor: pointer; padding: 4px 0; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+.detail-header { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
+.detail-header .dh-name { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+.detail-header .dh-total-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.detail-header .dh-total { font-size: 1.55rem; font-weight: 700; color: var(--green); margin-top: 2px; }
+.detail-header .dh-meta { font-size: 0.82rem; color: var(--muted); margin-top: 6px; }
+.month-group { margin-bottom: 20px; }
+.month-group-title { font-size: 0.82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; padding: 0 4px 8px; }
+.entry-item { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+.entry-item .ei-left { flex: 1; min-width: 0; }
+.entry-item .ei-item { font-weight: 500; margin-bottom: 2px; }
+.entry-item .ei-date { font-size: 0.78rem; color: var(--muted); }
+.entry-item .ei-amount { font-weight: 700; color: var(--green); margin-left: 12px; white-space: nowrap; }
+.entry-item .ei-del { background: none; border: none; color: var(--red); font-size: 1rem; cursor: pointer; padding: 6px 4px 6px 8px; margin-left: 4px; opacity: 0.7; }
+
+.modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.5); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal.open { opacity: 1; pointer-events: auto; }
+.modal-sheet { background: white; width: 100%; max-width: 480px; border-radius: 18px 18px 0 0; padding: 20px; max-height: 92vh; overflow-y: auto; transform: translateY(30px); transition: transform 0.25s ease; }
+.modal.open .modal-sheet { transform: translateY(0); }
+.modal-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+.form-actions .btn { flex: 1; }
+.btn-secondary { background: #eef2f0; color: var(--text); }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1c2b26; color: white; padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; z-index: 300; opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 90vw; text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.fab { position: fixed; bottom: 20px; right: 20px; z-index: 20; width: 58px; height: 58px; border-radius: 50%; background: var(--green); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 14px rgba(13,110,79,0.4); display: flex; align-items: center; justify-content: center; line-height: 1; }
+.fab:active { background: var(--green-dark); transform: scale(0.96); }
+
+/* ADMIN PANEL */
+.admin-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
+.admin-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
+.admin-card h3 { font-size: 1rem; margin-bottom: 12px; }
+.user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.user-row:last-child { border-bottom: none; }
+.user-row .ur-left { flex: 1; min-width: 0; }
+.user-row .ur-name { font-weight: 600; margin-bottom: 2px; }
+.user-row .ur-meta { font-size: 0.78rem; color: var(--muted); }
+.status-pill { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+.status-active { background: var(--green-light); color: var(--green-dark); }
+.status-expired { background: #fdecea; color: #b3261e; }
+.status-disabled { background: #eee; color: #555; }
+.user-row .ur-actions { display: flex; gap: 6px; }
+.tiny-btn { padding: 7px 10px; font-size: 0.75rem; border-radius: 7px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer; color: var(--text); }
+.tiny-btn.danger { color: var(--red); border-color: #f3c9c4; }
+.tiny-btn.primary { background: var(--green); color: white; border-color: var(--green); }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-box { background: var(--green-light); padding: 14px; border-radius: 10px; }
+.stat-box .sb-label { font-size: 0.72rem; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; }
+.stat-box .sb-value { font-size: 1.4rem; font-weight: 700; color: var(--green-dark); margin-top: 4px; }
+
+.pw-reveal { font-family: monospace; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<!-- ================= GATE (LOGIN) SCREEN ================= -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <div class="gl-icon">🏪</div>
+      <h1>Shop Rent Manager</h1>
+      <p id="gate-subtitle">Sign in to continue</p>
+    </div>
+
+    <div class="gate-tabs" id="gate-tabs">
+      <button class="gate-tab active" data-tab="login">Login</button>
+      <button class="gate-tab" data-tab="activate">Enter Code</button>
+    </div>
+
+    <div class="gate-msg" id="gate-msg"></div>
+
+    <!-- LOGIN TAB -->
+    <div id="tab-login">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-user" autocomplete="username" placeholder="your username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" id="login-btn">Sign In</button>
+    </div>
+
+    <!-- ACTIVATE TAB -->
+    <div id="tab-activate" style="display:none;">
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;text-align:center;">Enter the activation code you received from the seller.</p>
+      <div class="form-group">
+        <label>Activation Code</label>
+        <input type="text" id="activate-code" placeholder="XXXX-XXXX-XXXX" style="text-transform:uppercase;font-family:monospace;letter-spacing:2px;text-align:center;">
+      </div>
+      <div class="form-group">
+        <label>Choose Username</label>
+        <input type="text" id="activate-user" placeholder="pick a username" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Choose Password</label>
+        <input type="password" id="activate-pass" placeholder="min 4 characters" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary" id="activate-btn">Activate Account</button>
+    </div>
+
+    <div class="gate-footer">
+      <p>Contact seller to buy access</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MAIN APP ================= -->
+<div id="app-root" style="display:none;">
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>🏪 Shop Rent Manager</h2>
+      <p>All-Time Total: <strong id="all-total">Rs. 0</strong></p>
+    </div>
+    <div class="user-box" id="user-box"></div>
+    <div class="sidebar-content">
+      <button class="add-btn-side" id="side-add">＋ Add Rent Entry</button>
+      <div class="sidebar-section-title">Months</div>
+      <div id="sidebar-months"></div>
+      <div class="sidebar-section-title" id="admin-section-title" style="display:none;">Admin</div>
+      <div class="side-link" id="admin-link" style="display:none;">👑 <span>Admin Panel</span></div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="mini-btn" id="export-btn">⬇ Backup</button>
+      <button class="mini-btn" id="import-btn">⬆ Restore</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none">
+    </div>
+    <div class="sidebar-footer" style="border-top:none;padding-top:0;">
+      <button class="mini-btn" id="logout-btn" style="color:var(--red);border-color:#f3c9c4;">Sign Out</button>
+    </div>
+  </aside>
+
+  <header class="header">
+    <button class="icon-btn" id="menu-btn">☰</button>
+    <h1 id="header-title">Shop Rent Manager</h1>
+    <span class="badge-admin" id="admin-badge" style="display:none;">Admin</span>
+  </header>
+
+  <main class="main" id="app"></main>
+  <button class="fab" id="fab">＋</button>
+</div>
+
+<!-- ================= ADD ENTRY MODAL ================= -->
+<div class="modal" id="add-modal">
+  <div class="modal-sheet">
+    <div class="modal-title">
+      <span>Add Rent Entry</span>
+      <button class="icon-btn" id="close-modal" style="color:#666;font-size:1.3rem;">✕</button>
+    </div>
+    <div class="form-group"><label>Customer Name</label>
+      <input type="text" id="f-name" list="customer-names" placeholder="e.g. Ahmed Ali" autocomplete="off">
+      <datalist id="customer-names"></datalist>
+    </div>
+    <div class="form-group"><label>Item / Reason</label>
+      <input type="text" id="f-item" placeholder="e.g. Rice bag, Sugar, Grocery" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Amount (PKR)</label>
+      <input type="number" id="f-amount" placeholder="0" inputmode="decimal" min="0" step="any">
+    </div>
+    <div class="form-group"><label>Date</label>
+      <input type="date" id="f-date">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CREATE USER MODAL (ADMIN) ================= -->
+<div class="modal" id="user-modal">
+  <div class="modal-sheet">
+    <div class="modal-title">
+      <span>Create User</span>
+      <button class="icon-btn" id="close-user-modal" style="color:#666;font-size:1.3rem;">✕</button>
+    </div>
+    <div class="form-group"><label>Shopkeeper Name</label>
+      <input type="text" id="u-name" placeholder="e.g. Bilal Store" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Username</label>
+      <input type="text" id="u-user" placeholder="e.g. bilal01" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Password</label>
+      <input type="text" id="u-pass" placeholder="set a password" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Access Duration</label>
+      <select id="u-days">
+        <option value="7">7 days (Trial)</option>
+        <option value="30" selected>30 days</option>
+        <option value="90">90 days</option>
+        <option value="365">1 year</option>
+        <option value="3650">10 years (Lifetime)</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancel-user-btn">Cancel</button>
+      <button class="btn btn-primary" id="create-user-btn">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// STORAGE KEYS
+// ============================================================
+const ACCOUNTS_KEY = 'srm_accounts';     // all user accounts
+const SESSION_KEY  = 'srm_session';      // current logged-in user
+const DATA_PREFIX  = 'srm_data_';        // per-user data: srm_data_<userId>
+const ADMIN_USER   = 'admin';            // admin username
+const ADMIN_PASS   = 'sadafahad@01';         // ⚠ CHANGE THIS before selling!
+
+// ============================================================
+// AUTH STORAGE
+// ============================================================
+function getAccounts() {
+  try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || []; }
+  catch { return []; }
+}
+function setAccounts(list) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); }
+
+function initAdmin() {
+  const list = getAccounts();
+  if (!list.find(a => a.username === ADMIN_USER)) {
+    list.push({
+      id: 'admin',
+      name: 'Administrator',
+      username: ADMIN_USER,
+      password: ADMIN_PASS,
+      role: 'admin',
+      createdAt: Date.now(),
+      expiresAt: null,
+      disabled: false
+    });
+    setAccounts(list);
+  }
+}
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+  catch { return null; }
+}
+function setSession(s) {
+  if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  else localStorage.removeItem(SESSION_KEY);
+}
+function isExpired(acc) {
+  if (!acc.expiresAt) return false;
+  return Date.now() > acc.expiresAt;
+}
+function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 12; i++) {
+    s += chars[Math.floor(Math.random()*chars.length)];
+    if (i === 3 || i === 7) s += '-';
+  }
+  return s;
+}
+
+// ============================================================
+// PER-USER DATA
+// ============================================================
+let currentUser = null;
+let state = { customers: [], view: { type: 'month', month: '' }, viewMode: 'app' };
+let searchQuery = '';
+
+function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
+function save() {
+  if (!currentUser) return;
+  localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
+}
+function load() {
+  if (!currentUser) return;
+  try {
+    const raw = localStorage.getItem(dataKey());
+    if (raw) { const d = JSON.parse(raw); state.customers = d.customers || []; }
+    else state.customers = [];
+  } catch { state.customers = []; }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function currentMonthKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function monthOf(d) { return d.slice(0,7); }
+function monthName(key) {
+  const [y,m] = key.split('-');
+  const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return names[+m-1] + ' ' + y;
+}
+function todayISO() { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate() + ' ' + mo[d.getMonth()] + ' ' + d.getFullYear();
+}
+function money(n) {
+  const num = Number(n) || 0;
+  const neg = num < 0; const abs = Math.abs(num);
+  const parts = abs.toFixed(2).replace(/\.00$/, '').split('.');
+  let intPart = parts[0]; const decPart = parts[1];
+  let result = '';
+  if (intPart.length <= 3) result = intPart;
+  else {
+    const last3 = intPart.slice(-3);
+    let rest = intPart.slice(0, -3);
+    const groups = [];
+    while (rest.length > 2) { groups.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
+    if (rest.length) groups.unshift(rest);
+    result = groups.join(',') + ',' + last3;
+  }
+  return (neg ? '-' : '') + 'Rs. ' + result + (decPart ? '.' + decPart : '');
+}
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+// ============================================================
+// DATA CALCULATIONS
+// ============================================================
+function getAllMonths() {
+  const set = new Set();
+  state.customers.forEach(c => c.entries.forEach(e => set.add(monthOf(e.date))));
+  set.add(currentMonthKey());
+  return [...set].sort().reverse();
+}
+function getMonthTotal(m) {
+  let t = 0;
+  state.customers.forEach(c => c.entries.forEach(e => { if (monthOf(e.date) === m) t += e.amount; }));
+  return t;
+}
+function getMonthCustomers(m) {
+  return state.customers.map(c => {
+    const entries = c.entries.filter(e => monthOf(e.date) === m).sort((a,b)=>a.date.localeCompare(b.date));
+    const total = entries.reduce((s,e)=>s+e.amount,0);
+    return { customer: c, entries, total };
+  }).filter(x => x.entries.length > 0)
+    .sort((a,b) => a.customer.name.localeCompare(b.customer.name));
+}
+function getAllTimeTotal() {
+  return state.customers.reduce((s,c) => s + c.entries.reduce((a,e)=>a+e.amount,0), 0);
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+const app = document.getElementById('app');
+
+function render() {
+  if (state.viewMode === 'admin') { renderAdmin(); return; }
+  if (!state.view.month) state.view.month = currentMonthKey();
+  if (state.view.type === 'month') renderMonth();
+  else renderCustomer();
+  renderSidebar();
+  document.getElementById('header-title').textContent =
+    state.view.type === 'month' ? monthName(state.view.month) :
+    (state.customers.find(c => c.id === state.view.id)?.name || 'Customer');
+}
+
+function renderSidebar() {
+  const months = getAllMonths();
+  const el = document.getElementById('sidebar-months');
+  el.innerHTML = months.map(m => {
+    const total = getMonthTotal(m);
+    const active = state.view.type === 'month' && state.view.month === m && state.viewMode !== 'admin' ? 'active' : '';
+    return `<div class="month-item ${active}" data-month="${m}">
+      <span class="m-name">${monthName(m)}</span>
+      <span class="m-total">${money(total)}</span>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.month-item').forEach(item => {
+    item.onclick = () => { goMonth(item.dataset.month); closeSidebar(); };
+  });
+  document.getElementById('all-total').textContent = money(getAllTimeTotal());
+
+  // user box
+  const ub = document.getElementById('user-box');
+  if (currentUser) {
+    let expiry = 'No expiry';
+    if (currentUser.expiresAt) {
+      const days = Math.ceil((currentUser.expiresAt - Date.now()) / 86400000);
+      expiry = days > 0 ? `${days} day${days===1?'':'s'} left` : 'Expired';
+    }
+    ub.innerHTML = `<strong>${escapeHtml(currentUser.name)}</strong><br>@${escapeHtml(currentUser.username)} · ${expiry}`;
+    if (currentUser.role === 'admin') {
+      document.getElementById('admin-link').style.display = 'flex';
+      document.getElementById('admin-section-title').style.display = 'block';
+      document.getElementById('admin-badge').style.display = 'inline-block';
+    }
+  }
+}
+
+function renderMonth() {
+  const m = state.view.month;
+  const total = getMonthTotal(m);
+  app.innerHTML = `
+    <div class="month-summary">
+      <div class="ms-label">Month Total</div>
+      <div class="ms-month">${monthName(m)}</div>
+      <div class="ms-total">${money(total)}</div>
+    </div>
+    <div class="search-box">
+      <input type="text" id="search" placeholder="🔍 Search customer name" autocomplete="off">
+    </div>
+    <div id="cust-list"></div>
+  `;
+  const searchEl = document.getElementById('search');
+  searchEl.value = searchQuery;
+  searchEl.oninput = (e) => { searchQuery = e.target.value; updateCustList(); };
+  updateCustList();
+}
+
+function updateCustList() {
+  const m = state.view.month;
+  const list = getMonthCustomers(m);
+  const q = searchQuery.trim().toLowerCase();
+  const filtered = q ? list.filter(x => x.customer.name.toLowerCase().includes(q)) : list;
+  const el = document.getElementById('cust-list');
+  if (!el) return;
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><div>${list.length===0 ? 'No customers this month yet' : 'No matches found'}</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(x => `
+    <div class="customer-card" data-id="${x.customer.id}">
+      <div class="cc-left">
+        <div class="cc-name">${escapeHtml(x.customer.name)}</div>
+        <div class="cc-meta">${x.entries.length} ${x.entries.length===1?'entry':'entries'} this month</div>
+      </div>
+      <div class="cc-right">
+        <div class="cc-amount">${money(x.total)}</div>
+        <div class="cc-arrow">›</div>
+      </div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.customer-card').forEach(card => {
+    card.onclick = () => goCustomer(card.dataset.id, m);
+  });
+}
+
+function renderCustomer() {
+  const c = state.customers.find(x => x.id === state.view.id);
+  if (!c) { goMonth(state.view.fromMonth || currentMonthKey()); return; }
+  const allTotal = c.entries.reduce((s,e) => s + e.amount, 0);
+  const byMonth = {};
+  c.entries.forEach(e => {
+    const mk = monthOf(e.date);
+    if (!byMonth[mk]) byMonth[mk] = [];
+    byMonth[mk].push(e);
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+
+  app.innerHTML = `
+    <button class="back-btn" id="back">← Back</button>
+    <div class="detail-header">
+      <div class="dh-name">${escapeHtml(c.name)}</div>
+      <div class="dh-total-label">Total Rent — All Time</div>
+      <div class="dh-total">${money(allTotal)}</div>
+      <div class="dh-meta">${c.entries.length} ${c.entries.length===1?'entry':'entries'} recorded</div>
+    </div>
+    ${months.length === 0 ? `<div class="empty-state"><div class="es-icon">📋</div><div>No entries yet</div></div>`
+      : months.map(mk => {
+          const entries = byMonth[mk].slice().sort((a,b) => b.date.localeCompare(a.date));
+          const mt = entries.reduce((s,e) => s + e.amount, 0);
+          return `
+            <div class="month-group">
+              <div class="month-group-title"><span>${monthName(mk)}</span><span>${money(mt)}</span></div>
+              ${entries.map(e => `
+                <div class="entry-item">
+                  <div class="ei-left">
+                    <div class="ei-item">${escapeHtml(e.item || 'Rent')}</div>
+                    <div class="ei-date">${formatDate(e.date)}</div>
+                  </div>
+                  <div class="ei-amount">${money(e.amount)}</div>
+                  <button class="ei-del" data-eid="${e.id}" title="Delete">✕</button>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }).join('')}
+  `;
+  document.getElementById('back').onclick = () => goMonth(state.view.fromMonth || currentMonthKey());
+  app.querySelectorAll('.ei-del').forEach(btn => {
+    btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(c.id, btn.dataset.eid); };
+  });
+}
+
+// ============================================================
+// ADMIN PANEL
+// ============================================================
+function renderAdmin() {
+  const accounts = getAccounts().filter(a => a.role !== 'admin');
+  const active = accounts.filter(a => !a.disabled && !isExpired(a)).length;
+  const expired = accounts.filter(a => !a.disabled && isExpired(a)).length;
+  const disabled = accounts.filter(a => a.disabled).length;
+
+  app.innerHTML = `
+    <div class="admin-panel">
+      <div class="admin-card">
+        <h3>📊 Overview</h3>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="sb-label">Total Users</div><div class="sb-value">${accounts.length}</div></div>
+          <div class="stat-box"><div class="sb-label">Active</div><div class="sb-value">${active}</div></div>
+          <div class="stat-box"><div class="sb-label">Expired</div><div class="sb-value">${expired}</div></div>
+          <div class="stat-box"><div class="sb-label">Disabled</div><div class="sb-value">${disabled}</div></div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3 style="margin:0;">👥 Users</h3>
+          <button class="tiny-btn primary" id="new-user-btn">＋ New User</button>
+        </div>
+        ${accounts.length === 0
+          ? `<div class="empty-state" style="padding:24px;"><div>No users yet. Tap "New User" to create one.</div></div>`
+          : accounts.map(u => {
+              const expired = isExpired(u);
+              const status = u.disabled ? 'disabled' : (expired ? 'expired' : 'active');
+              const statusClass = status === 'active' ? 'status-active' : status === 'expired' ? 'status-expired' : 'status-disabled';
+              const expText = u.expiresAt ? new Date(u.expiresAt).toLocaleDateString() : '—';
+              return `
+                <div class="user-row">
+                  <div class="ur-left">
+                    <div class="ur-name">${escapeHtml(u.name)} <span class="status-pill ${statusClass}">${status}</span></div>
+                    <div class="ur-meta">@${escapeHtml(u.username)} · pw: <span class="pw-reveal">${escapeHtml(u.password)}</span></div>
+                    <div class="ur-meta">Expires: ${expText}</div>
+                  </div>
+                  <div class="ur-actions">
+                    ${u.disabled
+                      ? `<button class="tiny-btn" data-action="enable" data-id="${u.id}">Enable</button>`
+                      : `<button class="tiny-btn danger" data-action="disable" data-id="${u.id}">Disable</button>`}
+                    <button class="tiny-btn danger" data-action="delete" data-id="${u.id}">Delete</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+      </div>
+
+      <div class="admin-card">
+        <h3>🔑 Change Admin Password</h3>
+        <div class="form-group"><label>New Password</label>
+          <input type="text" id="new-admin-pass" placeholder="Enter new password">
+        </div>
+        <button class="tiny-btn primary" id="save-admin-pass">Update Password</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('new-user-btn').onclick = openUserModal;
+  app.querySelectorAll('[data-action]').forEach(btn => {
+    btn.onclick = () => handleUserAction(btn.dataset.action, btn.dataset.id);
+  });
+  document.getElementById('save-admin-pass').onclick = () => {
+    const v = document.getElementById('new-admin-pass').value.trim();
+    if (v.length < 4) return toast('Password must be 4+ characters');
+    const list = getAccounts();
+    const a = list.find(x => x.role === 'admin');
+    if (a) { a.password = v; setAccounts(list); toast('Admin password updated ✓'); }
+  };
+}
+
+function handleUserAction(action, id) {
+  const list = getAccounts();
+  const u = list.find(x => x.id === id);
+  if (!u) return;
+  if (action === 'disable') { u.disabled = true; }
+  else if (action === 'enable') {
+    u.disabled = false;
+    if (isExpired(u)) {
+      const days = prompt('Account is expired. Extend by how many days?', '30');
+      if (!days) return;
+      u.expiresAt = Date.now() + (parseInt(days)*86400000);
+    }
+  }
+  else if (action === 'delete') {
+    if (!confirm(`Delete ${u.name}? Their data on THIS device will be removed too.`)) return;
+    localStorage.removeItem(DATA_PREFIX + u.id);
+    const idx = list.findIndex(x => x.id === id);
+    list.splice(idx, 1);
+    setAccounts(list);
+    toast('User deleted');
+    renderAdmin();
+    return;
+  }
+  setAccounts(list);
+  toast('Updated ✓');
+  renderAdmin();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', month: m }; searchQuery = ''; render(); window.scrollTo(0,0); }
+function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
+function goAdmin() { state.viewMode = 'admin'; render(); closeSidebar(); window.scrollTo(0,0); }
+
+// ============================================================
+// CRUD
+// ============================================================
+function deleteEntry(custId, entryId) {
+  if (!confirm('Delete this entry?')) return;
+  const c = state.customers.find(x => x.id === custId);
+  if (!c) return;
+  c.entries = c.entries.filter(e => e.id !== entryId);
+  save(); toast('Entry deleted'); render();
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-item').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-date').value = todayISO();
+  const dl = document.getElementById('customer-names');
+  dl.innerHTML = state.customers.map(c => `<option value="${escapeAttr(c.name)}">`).join('');
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 300);
+}
+function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+function openUserModal() {
+  document.getElementById('u-name').value = '';
+  document.getElementById('u-user').value = '';
+  document.getElementById('u-pass').value = '';
+  document.getElementById('u-days').value = '30';
+  document.getElementById('user-modal').classList.add('open');
+}
+function closeUserModal() { document.getElementById('user-modal').classList.remove('open'); }
+
+function createUser() {
+  const name = document.getElementById('u-name').value.trim();
+  const username = document.getElementById('u-user').value.trim().toLowerCase();
+  const password = document.getElementById('u-pass').value.trim();
+  const days = parseInt(document.getElementById('u-days').value);
+
+  if (!name) return toast('Enter shopkeeper name');
+  if (!username || username.length < 3) return toast('Username must be 3+ characters');
+  if (!/^[a-z0-9_]+$/.test(username)) return toast('Username: letters, numbers, _ only');
+  if (!password || password.length < 4) return toast('Password must be 4+ characters');
+
+  const list = getAccounts();
+  if (list.find(a => a.username === username)) return toast('Username already taken');
+
+  const newUser = {
+    id: genId(), name, username, password,
+    role: 'shopkeeper',
+    createdAt: Date.now(),
+    expiresAt: Date.now() + days * 86400000,
+    disabled: false
+  };
+  list.push(newUser);
+  setAccounts(list);
+  toast(`User created ✓ Give ${name}: @${username} / ${password}`);
+  closeUserModal();
+  renderAdmin();
+}
+
+function saveEntry() {
+  const name = document.getElementById('f-name').value.trim();
+  const item = document.getElementById('f-item').value.trim();
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  const date = document.getElementById('f-date').value;
+
+  if (!name) return toast('Please enter customer name');
+  if (!date) return toast('Please select a date');
+  if (!amount || amount <= 0) return toast('Please enter a valid amount');
+
+  let cust = state.customers.find(c => c.name.toLowerCase() === name.toLowerCase());
+  if (!cust) { cust = { id: uid(), name, entries: [] }; state.customers.push(cust); }
+  cust.entries.push({ id: uid(), date, amount, item: item || 'Rent' });
+  save(); closeModal(); toast('Entry saved ✓');
+  goMonth(monthOf(date));
+}
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); }
+function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+document.getElementById('menu-btn').onclick = openSidebar;
+overlay.onclick = closeSidebar;
+document.getElementById('side-add').onclick = () => { closeSidebar(); setTimeout(openModal, 250); };
+document.getElementById('fab').onclick = openModal;
+document.getElementById('close-modal').onclick = closeModal;
+document.getElementById('cancel-btn').onclick = closeModal;
+document.getElementById('save-btn').onclick = saveEntry;
+document.getElementById('admin-link').onclick = goAdmin;
+document.getElementById('close-user-modal').onclick = closeUserModal;
+document.getElementById('cancel-user-btn').onclick = closeUserModal;
+document.getElementById('create-user-btn').onclick = createUser;
+
+document.getElementById('logout-btn').onclick = () => {
+  if (!confirm('Sign out?')) return;
+  setSession(null);
+  location.reload();
+};
+
+// ============================================================
+// BACKUP
+// ============================================================
+document.getElementById('export-btn').onclick = () => {
+  const data = JSON.stringify({ customers: state.customers, exportedAt: new Date().toISOString() }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'shop-rent-backup-' + todayISO() + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('Backup downloaded');
+};
+document.getElementById('import-btn').onclick = () => document.getElementById('import-file').click();
+document.getElementById('import-file').onchange = (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data.customers)) throw new Error('Invalid');
+      if (!confirm('This will replace ALL current data. Continue?')) return;
+      state.customers = data.customers; save(); render(); toast('Data restored ✓');
+    } catch { toast('Invalid backup file'); }
+  };
+  reader.readAsText(file); e.target.value = '';
+};
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ============================================================
+// GATE (LOGIN / ACTIVATE)
+// ============================================================
+function showGateMsg(msg, type) {
+  const el = document.getElementById('gate-msg');
+  el.textContent = msg;
+  el.className = 'gate-msg ' + (type || 'error');
+}
+function clearGateMsg() {
+  const el = document.getElementById('gate-msg');
+  el.className = 'gate-msg';
+  el.textContent = '';
+}
+function hideGate() { document.getElementById('gate').classList.add('hidden'); document.getElementById('app-root').style.display = 'block'; }
+function showGate() { document.getElementById('gate').classList.remove('hidden'); document.getElementById('app-root').style.display = 'none'; }
+
+document.querySelectorAll('.gate-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    clearGateMsg();
+    const isLogin = tab.dataset.tab === 'login';
+    document.getElementById('tab-login').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('tab-activate').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('gate-tabs').style.display = 'flex';
+    document.getElementById('gate-subtitle').textContent = isLogin ? 'Sign in to continue' : 'Activate your account';
+  };
+});
+
+document.getElementById('login-btn').onclick = () => {
+  clearGateMsg();
+  const u = document.getElementById('login-user').value.trim().toLowerCase();
+  const p = document.getElementById('login-pass').value;
+  if (!u || !p) return showGateMsg('Enter username and password');
+  const acc = getAccounts().find(a => a.username === u && a.password === p);
+  if (!acc) return showGateMsg('Wrong username or password');
+  if (acc.disabled) return showGateMsg('This account has been disabled. Contact seller.');
+  if (isExpired(acc)) return showGateMsg('Your access has expired. Contact seller to renew.');
+  setSession({ id: acc.id });
+  startApp();
+};
+
+document.getElementById('activate-btn').onclick = () => {
+  clearGateMsg();
+  const code = document.getElementById('activate-code').value.trim().toUpperCase();
+  const username = document.getElementById('activate-user').value.trim().toLowerCase();
+  const password = document.getElementById('activate-pass').value.trim();
+  if (!code) return showGateMsg('Enter activation code');
+  if (!username || username.length < 3) return showGateMsg('Username must be 3+ characters');
+  if (!/^[a-z0-9_]+$/.test(username)) return showGateMsg('Username: letters, numbers, _ only');
+  if (!password || password.length < 4) return showGateMsg('Password must be 4+ characters');
+
+  // Look for a "pending" account created by admin with matching code.
+  const list = getAccounts();
+  const pending = list.find(a => a.activationCode === code && !a.activated);
+  if (!pending) return showGateMsg('Invalid or already-used activation code');
+  if (list.find(a => a.username === username)) return showGateMsg('Username already taken');
+
+  pending.username = username;
+  pending.password = password;
+  pending.activated = true;
+  delete pending.activationCode;
+  setAccounts(list);
+  setSession({ id: pending.id });
+  showGateMsg('Account activated! Signing in…', 'success');
+  setTimeout(startApp, 700);
+};
+
+// ============================================================
+// START APP
+// ============================================================
+function startApp() {
+  const s = getSession();
+  if (!s) { showGate(); return; }
+  const acc = getAccounts().find(a => a.id === s.id);
+  if (!acc || acc.disabled || isExpired(acc)) {
+    setSession(null);
+    showGate();
+    showGateMsg('Session expired. Please sign in again.');
+    return;
+  }
+  currentUser = acc;
+  load();
+  state.view.month = currentMonthKey();
+  state.viewMode = 'app';
+  hideGate();
+  render();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+initAdmin();
+startApp();
+
+// Re-check expiry every 30 seconds
+setInterval(() => {
+  if (currentUser && isExpired(currentUser)) {
+    toast('Access expired. Contact seller.');
+    setSession(null);
+    setTimeout(() => location.reload(), 1500);
+  }
+}, 30000);
+</script>
+</body>
+</html>
