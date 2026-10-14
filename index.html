@@ -319,14 +319,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <script type="module">
 // ============================================================
-// FIREBASE IMPORTS
+// FIREBASE
 // ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ============================================================
-// 🔥 YOUR FIREBASE CONFIG
-// ============================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBCd7XOvTThXof8HFJ6K9zECPf_swj5zIk",
   authDomain: "rent-management-78488.firebaseapp.com",
@@ -351,7 +348,7 @@ const ADMIN_USER   = 'admin';
 const ADMIN_PASS   = 'sadafahad@01';
 
 // ============================================================
-// ACCOUNTS STORAGE
+// ACCOUNTS
 // ============================================================
 let ACCOUNTS_CACHE = [];
 
@@ -362,6 +359,14 @@ function setAccounts(list) {
   if (FB && FB.db) {
     FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error('FB accounts save err', e));
   }
+}
+
+// 🔧 helper: Firebase may return array OR object — normalize both
+function toArray(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'object') return Object.values(val);
+  return [];
 }
 
 async function initAccounts() {
@@ -375,9 +380,10 @@ async function initAccounts() {
     let firstFire = true;
     FB.onValue(accRef, (snap) => {
       const val = snap.val();
-      if (Array.isArray(val)) {
-        ACCOUNTS_CACHE = val;
-        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(val));
+      const list = toArray(val);
+      if (list.length > 0) {
+        ACCOUNTS_CACHE = list;
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
       } else if (firstFire) {
         const seed = ACCOUNTS_CACHE.length ? ACCOUNTS_CACHE : [{
           id: 'admin', name: 'Administrator', username: ADMIN_USER,
@@ -412,7 +418,7 @@ function setSession(s) {
 }
 
 // ============================================================
-// DURATION HELPERS
+// DURATION
 // ============================================================
 function durationToMs(d) {
   const year = 365 * 24 * 60 * 60 * 1000;
@@ -440,7 +446,7 @@ function setDur(prefix, y, mo, d, h) {
 window.setDur = setDur;
 
 // ============================================================
-// PER-USER SHOP DATA
+// SHOP DATA
 // ============================================================
 let currentUser = null;
 let state = { customers: [], view: { type: 'month', month: '' }, viewMode: 'app' };
@@ -470,8 +476,12 @@ function load() {
   const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
   FB.onValue(shopRef, (snap) => {
     const val = snap.val();
-    if (val && Array.isArray(val.customers)) {
-      state.customers = val.customers;
+    if (val && val.customers) {
+      // 🔧 handle array OR object from Firebase
+      const customers = Array.isArray(val.customers)
+        ? val.customers
+        : Object.values(val.customers);
+      state.customers = customers;
       localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
       if (document.getElementById('app-root').style.display !== 'none') render();
     }
@@ -516,7 +526,7 @@ function escapeHtml(s) { const d = document.createElement('div'); d.textContent 
 function escapeAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
 // ============================================================
-// DATA CALCULATIONS
+// CALCULATIONS
 // ============================================================
 function getAllMonths() {
   const set = new Set();
@@ -682,7 +692,7 @@ function renderCustomer() {
 }
 
 // ============================================================
-// ADMIN PANEL
+// ADMIN
 // ============================================================
 function renderAdmin() {
   const accounts = getAccounts().filter(a => a.role !== 'admin');
@@ -776,9 +786,6 @@ function handleUserAction(action, id) {
   }
 }
 
-// ============================================================
-// EXTEND MODAL
-// ============================================================
 function openExtendModal(id) {
   const list = getAccounts();
   const u = list.find(x => x.id === id);
@@ -817,7 +824,7 @@ function confirmExtend() {
 }
 
 // ============================================================
-// NAVIGATION
+// NAV
 // ============================================================
 function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', month: m }; searchQuery = ''; render(); window.scrollTo(0,0); }
 function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
@@ -1041,7 +1048,7 @@ document.getElementById('activate-btn').onclick = () => {
 };
 
 // ============================================================
-// START — forces fresh login every page load
+// START
 // ============================================================
 function startApp() {
   const s = getSession();
@@ -1069,12 +1076,9 @@ setInterval(() => {
   }
 }, 30000);
 
-// Init
 (async () => {
   try { await initAccounts(); }
   catch (e) { console.error('Init accounts failed:', e); }
-
-  // 🔒 Force fresh login every time page opens — clear any saved session
   setSession(null);
   showGate();
 })();
