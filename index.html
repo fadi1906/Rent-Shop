@@ -12,7 +12,8 @@
   --red: #c0392b; --text: #1c2b26; --muted: #6b7a75;
   --border: #e2e8e5; --bg: #f4f7f6;
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+html, body { height: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
 .gate { position: fixed; inset: 0; background: linear-gradient(160deg, var(--green), var(--green-dark)); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 500; overflow-y: auto; }
 .gate.hidden { display: none; }
@@ -34,6 +35,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
 .btn-primary { background: var(--green); color: white; }
 .btn-primary:active { background: var(--green-dark); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-ghost { background: transparent; color: var(--muted); font-size: 0.82rem; padding: 8px; margin-top: 4px; }
 .gate-footer { text-align: center; margin-top: 14px; font-size: 0.78rem; color: var(--muted); }
 
@@ -42,6 +44,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .icon-btn { background: none; border: none; color: white; font-size: 1.5rem; padding: 4px 8px; cursor: pointer; border-radius: 6px; }
 .icon-btn:active { background: rgba(255,255,255,0.15); }
 .badge-admin { background: #ffd54f; color: #5d4000; font-size: 0.62rem; font-weight: 800; padding: 3px 7px; border-radius: 5px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+.cloud-pill { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; letter-spacing: 0.3px; text-transform: uppercase; transition: background 0.2s; }
+.cloud-online { background: #b7e4c7; color: #0b5d3b; }
+.cloud-offline { background: #ffd6d6; color: #a01b1b; }
+.cloud-syncing { background: #fff3cd; color: #7a5c00; }
 
 .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 290px; max-width: 85vw; background: white; z-index: 100; transform: translateX(-100%); transition: transform 0.25s ease; display: flex; flex-direction: column; box-shadow: 2px 0 12px rgba(0,0,0,0.15); }
 .sidebar.open { transform: translateX(0); }
@@ -141,6 +148,39 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .dur-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .dur-grid label { font-size: 0.72rem; color: var(--muted); }
 .quick-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+.item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: white; }
+.item-row .ir-left { flex: 1; min-width: 0; }
+.item-row .ir-name { font-weight: 600; margin-bottom: 2px; }
+.item-row .ir-price { font-size: 0.8rem; color: var(--green); font-weight: 600; }
+.item-row .ir-actions { display: flex; gap: 6px; }
+
+.item-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.item-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text); }
+.item-chip:active { background: var(--green-light); }
+.item-chip.selected { background: var(--green); color: white; border-color: var(--green); }
+.item-chip .chip-price { opacity: 0.7; font-weight: 500; margin-left: 4px; }
+
+.cloud-card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border); }
+.cloud-status-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.cloud-status-row:last-child { border-bottom: none; }
+.cloud-status-row .cs-label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.cloud-status-row .cs-value { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.cloud-big-status { text-align: center; padding: 20px 12px; }
+.cloud-big-status .cbs-icon { font-size: 3rem; margin-bottom: 8px; }
+.cloud-big-status .cbs-text { font-size: 1.1rem; font-weight: 700; }
+.cloud-big-status .cbs-sub { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+.cloud-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.cloud-action-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.cloud-action-btn.upload { background: var(--green); color: white; }
+.cloud-action-btn.upload:active { background: var(--green-dark); }
+.cloud-action-btn.download { background: #eef2f0; color: var(--text); }
+.cloud-action-btn.download:active { background: #dfe6e3; }
+.cloud-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.sync-badge { display:inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.sync-online { background: #b7e4c7; color: #0b5d3b; }
+.sync-offline { background: #ffd6d6; color: #a01b1b; }
+.sync-syncing { background: #fff3cd; color: #7a5c00; }
 </style>
 </head>
 <body>
@@ -195,13 +235,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <button class="add-btn-side" id="side-add">＋ Add Rent Entry</button>
       <div class="sidebar-section-title">Months</div>
       <div id="sidebar-months"></div>
+      <div class="sidebar-section-title">Settings</div>
+      <div class="side-link" id="items-link">📦 <span>Items &amp; Prices</span></div>
+      <div class="side-link" id="cloud-link">☁️ <span>Cloud Storage</span></div>
       <div class="sidebar-section-title" id="admin-section-title" style="display:none;">Admin</div>
       <div class="side-link" id="admin-link" style="display:none;">👑 <span>Admin Panel</span></div>
-    </div>
-    <div class="sidebar-footer">
-      <button class="mini-btn" id="export-btn">⬇ Backup</button>
-      <button class="mini-btn" id="import-btn">⬆ Restore</button>
-      <input type="file" id="import-file" accept="application/json" style="display:none">
     </div>
     <div class="sidebar-footer" style="border-top:none;padding-top:0;">
       <button class="mini-btn" id="logout-btn" style="color:var(--red);border-color:#f3c9c4;">Sign Out</button>
@@ -211,6 +249,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="icon-btn" id="menu-btn">☰</button>
     <h1 id="header-title">Shop Rent Manager</h1>
     <span class="badge-admin" id="admin-badge" style="display:none;">Admin</span>
+    <span class="cloud-pill cloud-online" id="cloud-pill">☁️ Synced</span>
   </header>
   <main class="main" id="app"></main>
   <button class="fab" id="fab">＋</button>
@@ -225,8 +264,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <input type="text" id="f-name" list="customer-names" placeholder="e.g. Ahmed Ali" autocomplete="off">
       <datalist id="customer-names"></datalist>
     </div>
-    <div class="form-group"><label>Item / Reason</label>
-      <input type="text" id="f-item" placeholder="e.g. Rice bag, Sugar, Grocery" autocomplete="off">
+    <div class="form-group">
+      <label>Item / Reason</label>
+      <div id="item-chips" class="item-chips"></div>
+      <input type="text" id="f-item" placeholder="or type item name" autocomplete="off" style="margin-top:8px;">
     </div>
     <div class="form-group"><label>Amount (PKR)</label>
       <input type="number" id="f-amount" placeholder="0" inputmode="decimal" min="0" step="any">
@@ -237,6 +278,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="form-actions">
       <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
       <button class="btn btn-primary" id="save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="item-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span id="item-modal-title">Add Item</span>
+      <button class="icon-btn" id="close-item-modal" style="color:#666;font-size:1.3rem;">✕</button>
+    </div>
+    <input type="hidden" id="item-edit-id">
+    <div class="form-group"><label>Item Name</label>
+      <input type="text" id="item-name" placeholder="e.g. Rice bag 5kg" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Default Price (PKR) — optional</label>
+      <input type="number" id="item-price" placeholder="0" inputmode="decimal" min="0" step="any">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancel-item-btn">Cancel</button>
+      <button class="btn btn-primary" id="save-item-btn">Save Item</button>
     </div>
   </div>
 </div>
@@ -318,11 +378,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="toast" id="toast"></div>
 
 <script type="module">
-// ============================================================
-// FIREBASE
-// ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCd7XOvTThXof8HFJ6K9zECPf_swj5zIk",
@@ -336,11 +393,7 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const FB = { ref, onValue, set, db };
 
-// ============================================================
-// CONFIG
-// ============================================================
 const ACCOUNTS_KEY = 'srm_accounts';
 const SESSION_KEY  = 'srm_session';
 const DATA_PREFIX  = 'srm_data_';
@@ -348,149 +401,55 @@ const ADMIN_USER   = 'admin';
 const ADMIN_PASS   = 'sadafahad@01';
 
 // ============================================================
-// ACCOUNTS
+// STATE
 // ============================================================
-let ACCOUNTS_CACHE = [];
+let currentUser = null;
+let accountsCache = [];
+let state = { customers: [], items: [] };
+let viewState = { mode: 'month', month: '', customerId: null, fromMonth: null };
+let searchQuery = '';
+let selectedItem = '';
+let cloudStatus = 'online';
+let lastSyncTime = null;
+let unsubShop = null;
+let unsubAccounts = null;
+let isSyncing = false;      // blocks overlapping writes
+let pendingRemoteUpdate = null;   // debounce remote updates
+let saveTimer = null;       // debounce local saves
 
-function getAccounts() { return ACCOUNTS_CACHE; }
-function setAccounts(list) {
-  ACCOUNTS_CACHE = list;
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-  if (FB && FB.db) {
-    FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error('FB accounts save err', e));
-  }
+// ============================================================
+// CLOUD STATUS
+// ============================================================
+function updateCloudPill() {
+  const pill = document.getElementById('cloud-pill');
+  if (!pill) return;
+  const map = {
+    online:  ['cloud-online',  '☁️ Synced'],
+    syncing: ['cloud-syncing', '☁️ Syncing…'],
+    offline: ['cloud-offline', '☁️ Offline']
+  };
+  const [cls, txt] = map[cloudStatus] || map.online;
+  pill.className = 'cloud-pill ' + cls;
+  pill.textContent = txt;
 }
 
-// 🔧 helper: Firebase may return array OR object — normalize both
+window.addEventListener('online', () => {
+  cloudStatus = 'online'; updateCloudPill();
+  if (currentUser) syncUp(false);
+});
+window.addEventListener('offline', () => {
+  cloudStatus = 'offline'; updateCloudPill();
+});
+
+// ============================================================
+// HELPERS
+// ============================================================
 function toArray(val) {
   if (!val) return [];
   if (Array.isArray(val)) return val;
   if (typeof val === 'object') return Object.values(val);
   return [];
 }
-
-async function initAccounts() {
-  try {
-    const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
-    ACCOUNTS_CACHE = local;
-  } catch { ACCOUNTS_CACHE = []; }
-
-  return new Promise(resolve => {
-    const accRef = FB.ref(FB.db, 'accounts');
-    let firstFire = true;
-    FB.onValue(accRef, (snap) => {
-      const val = snap.val();
-      const list = toArray(val);
-      if (list.length > 0) {
-        ACCOUNTS_CACHE = list;
-        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-      } else if (firstFire) {
-        const seed = ACCOUNTS_CACHE.length ? ACCOUNTS_CACHE : [{
-          id: 'admin', name: 'Administrator', username: ADMIN_USER,
-          password: ADMIN_PASS, role: 'admin',
-          createdAt: Date.now(), expiresAt: null, disabled: false
-        }];
-        ACCOUNTS_CACHE = seed;
-        FB.set(accRef, seed);
-      }
-      firstFire = false;
-      resolve();
-    });
-  });
-}
-
-function isExpired(acc) {
-  if (!acc.expiresAt) return false;
-  return Date.now() > acc.expiresAt;
-}
-function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-// ============================================================
-// SESSION
-// ============================================================
-function getSession() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
-  catch { return null; }
-}
-function setSession(s) {
-  if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
-  else localStorage.removeItem(SESSION_KEY);
-}
-
-// ============================================================
-// DURATION
-// ============================================================
-function durationToMs(d) {
-  const year = 365 * 24 * 60 * 60 * 1000;
-  const month = 30 * 24 * 60 * 60 * 1000;
-  const day = 24 * 60 * 60 * 1000;
-  const hour = 60 * 60 * 1000;
-  return (d.y||0)*year + (d.mo||0)*month + (d.d||0)*day + (d.h||0)*hour;
-}
-function formatRemaining(ms) {
-  if (ms <= 0) return 'Expired';
-  const s = Math.floor(ms/1000);
-  const d = Math.floor(s/86400);
-  const h = Math.floor((s%86400)/3600);
-  const m = Math.floor((s%3600)/60);
-  if (d > 0) return `${d}d ${h}h left`;
-  if (h > 0) return `${h}h ${m}m left`;
-  return `${m}m left`;
-}
-function setDur(prefix, y, mo, d, h) {
-  document.getElementById(prefix + '-years').value = y;
-  document.getElementById(prefix + '-months').value = mo;
-  document.getElementById(prefix + '-days').value = d;
-  document.getElementById(prefix + '-hours').value = h;
-}
-window.setDur = setDur;
-
-// ============================================================
-// SHOP DATA
-// ============================================================
-let currentUser = null;
-let state = { customers: [], view: { type: 'month', month: '' }, viewMode: 'app' };
-let searchQuery = '';
-let unsubShop = null;
-
-function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
-
-function save() {
-  if (!currentUser) return;
-  localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
-  if (FB && FB.db) {
-    FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), { customers: state.customers })
-      .catch(e => console.error('FB shop save err', e));
-  }
-}
-
-function load() {
-  if (!currentUser) return;
-  try {
-    const raw = localStorage.getItem(dataKey());
-    if (raw) { state.customers = (JSON.parse(raw).customers) || []; }
-    else state.customers = [];
-  } catch { state.customers = []; }
-
-  if (unsubShop) unsubShop();
-  const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
-  FB.onValue(shopRef, (snap) => {
-    const val = snap.val();
-    if (val && val.customers) {
-      // 🔧 handle array OR object from Firebase
-      const customers = Array.isArray(val.customers)
-        ? val.customers
-        : Object.values(val.customers);
-      state.customers = customers;
-      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers }));
-      if (document.getElementById('app-root').style.display !== 'none') render();
-    }
-  });
-}
-
-// ============================================================
-// HELPERS
-// ============================================================
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function currentMonthKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
 function monthOf(d) { return d.slice(0,7); }
@@ -524,6 +483,215 @@ function money(n) {
 }
 function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 function escapeAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function timeAgo(ts) {
+  if (!ts) return 'never';
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 5) return 'just now';
+  if (s < 60) return s + 's ago';
+  const m = Math.floor(s/60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m/60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h/24);
+  return d + 'd ago';
+}
+function isExpired(acc) { return acc.expiresAt ? Date.now() > acc.expiresAt : false; }
+function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function durationToMs(d) {
+  return (d.y||0)*365*86400000 + (d.mo||0)*30*86400000 + (d.d||0)*86400000 + (d.h||0)*3600000;
+}
+function formatRemaining(ms) {
+  if (ms <= 0) return 'Expired';
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  if (d > 0) return `${d}d ${h}h left`;
+  if (h > 0) return `${h}h ${m}m left`;
+  return `${m}m left`;
+}
+function setDur(prefix, y, mo, d, h) {
+  document.getElementById(prefix + '-years').value = y;
+  document.getElementById(prefix + '-months').value = mo;
+  document.getElementById(prefix + '-days').value = d;
+  document.getElementById(prefix + '-hours').value = h;
+}
+window.setDur = setDur;
+
+// ============================================================
+// SESSION
+// ============================================================
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function setSession(s) {
+  if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  else localStorage.removeItem(SESSION_KEY);
+}
+
+// ============================================================
+// ACCOUNTS (subscribe once)
+// ============================================================
+function getAccounts() { return accountsCache; }
+
+async function setAccounts(list) {
+  accountsCache = list;
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
+  try {
+    await set(ref(db, 'accounts'), list);
+  } catch (e) { console.error('accounts save failed', e); }
+}
+
+function initAccounts() {
+  try {
+    const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
+    accountsCache = local;
+  } catch { accountsCache = []; }
+
+  return new Promise(resolve => {
+    const accRef = ref(db, 'accounts');
+    let firstFire = true;
+    unsubAccounts = onValue(accRef, (snap) => {
+      const val = snap.val();
+      const list = toArray(val);
+      if (list.length > 0) {
+        accountsCache = list;
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
+      } else if (firstFire) {
+        const seed = accountsCache.length ? accountsCache : [{
+          id: 'admin', name: 'Administrator', username: ADMIN_USER,
+          password: ADMIN_PASS, role: 'admin',
+          createdAt: Date.now(), expiresAt: null, disabled: false
+        }];
+        accountsCache = seed;
+        set(ref(db, 'accounts'), seed).catch(()=>{});
+      }
+      firstFire = false;
+      resolve();
+    }, () => { firstFire = false; resolve(); });
+  });
+}
+
+// ============================================================
+// SHOP DATA
+// ============================================================
+function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
+
+function saveLocalOnly() {
+  if (!currentUser) return;
+  localStorage.setItem(dataKey(), JSON.stringify({
+    customers: state.customers,
+    items: state.items
+  }));
+}
+
+// Debounced save → prevents hammering Firebase on rapid taps
+function save() {
+  saveLocalOnly();
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => syncUp(false), 400);
+}
+
+async function syncUp(manual) {
+  if (!currentUser || isSyncing) return;
+  if (!navigator.onLine) {
+    if (manual) toast('No internet — will sync when online');
+    return;
+  }
+  isSyncing = true;
+  cloudStatus = 'syncing'; updateCloudPill();
+  if (manual) toast('Uploading to cloud…');
+  try {
+    const payload = {
+      customers: state.customers,
+      items: state.items,
+      lastSync: Date.now(),
+      syncBy: currentUser.username
+    };
+    await set(ref(db, 'shops/' + currentUser.id), payload);
+    lastSyncTime = Date.now();
+    cloudStatus = 'online'; updateCloudPill();
+    if (manual) toast('☁️ Uploaded to cloud ✓');
+  } catch (e) {
+    console.error('Sync up failed', e);
+    cloudStatus = 'offline'; updateCloudPill();
+    if (manual) toast('Upload failed: ' + (e.message || 'error'));
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function syncDown(manual) {
+  if (!currentUser) return;
+  if (!navigator.onLine) { if (manual) toast('No internet'); return; }
+  cloudStatus = 'syncing'; updateCloudPill();
+  if (manual) toast('Downloading from cloud…');
+  try {
+    const snap = await get(ref(db, 'shops/' + currentUser.id));
+    const val = snap.val();
+    if (val) {
+      state.customers = val.customers ? toArray(val.customers) : [];
+      state.items = val.items ? toArray(val.items) : [];
+      saveLocalOnly();
+      if (val.lastSync) lastSyncTime = val.lastSync;
+      cloudStatus = 'online'; updateCloudPill();
+      render();
+      if (manual) toast('☁️ Downloaded from cloud ✓');
+    } else {
+      cloudStatus = 'online'; updateCloudPill();
+      if (manual) toast('Nothing in cloud yet');
+    }
+  } catch (e) {
+    console.error('Sync down failed', e);
+    cloudStatus = 'offline'; updateCloudPill();
+    if (manual) toast('Download failed: ' + (e.message || 'error'));
+  }
+}
+
+// Live subscription — updates only when cloud data actually differs
+function subscribeShop() {
+  if (unsubShop) unsubShop();
+  const shopRef = ref(db, 'shops/' + currentUser.id);
+  unsubShop = onValue(shopRef, (snap) => {
+    const val = snap.val();
+    if (!val) return;
+    const remoteCustomers = val.customers ? toArray(val.customers) : [];
+    const remoteItems = val.items ? toArray(val.items) : [];
+
+    // Skip if identical (avoid re-render loops)
+    const sameCustomers = JSON.stringify(remoteCustomers) === JSON.stringify(state.customers);
+    const sameItems = JSON.stringify(remoteItems) === JSON.stringify(state.items);
+    if (sameCustomers && sameItems) {
+      if (val.lastSync) lastSyncTime = val.lastSync;
+      return;
+    }
+
+    // Debounce — Firebase sometimes fires twice quickly
+    if (pendingRemoteUpdate) clearTimeout(pendingRemoteUpdate);
+    pendingRemoteUpdate = setTimeout(() => {
+      state.customers = remoteCustomers;
+      state.items = remoteItems;
+      saveLocalOnly();
+      if (val.lastSync) lastSyncTime = val.lastSync;
+      cloudStatus = 'online'; updateCloudPill();
+      if (document.getElementById('app-root').style.display !== 'none') render();
+      pendingRemoteUpdate = null;
+    }, 250);
+  });
+}
+
+function loadFromLocal() {
+  if (!currentUser) return;
+  try {
+    const raw = localStorage.getItem(dataKey());
+    if (raw) {
+      const d = JSON.parse(raw);
+      state.customers = d.customers || [];
+      state.items = d.items || [];
+    } else {
+      state.customers = [];
+      state.items = [];
+    }
+  } catch { state.customers = []; state.items = []; }
+}
 
 // ============================================================
 // CALCULATIONS
@@ -557,14 +725,28 @@ function getAllTimeTotal() {
 const app = document.getElementById('app');
 
 function render() {
-  if (state.viewMode === 'admin') { renderAdmin(); return; }
-  if (!state.view.month) state.view.month = currentMonthKey();
-  if (state.view.type === 'month') renderMonth();
-  else renderCustomer();
+  if (viewState.mode === 'admin') { renderAdmin(); return; }
+  if (viewState.mode === 'items') { renderItems(); return; }
+  if (viewState.mode === 'cloud') { renderCloud(); return; }
+  if (!viewState.month) viewState.month = currentMonthKey();
+  if (viewState.mode === 'customer') renderCustomer();
+  else renderMonth();
   renderSidebar();
-  document.getElementById('header-title').textContent =
-    state.view.type === 'month' ? monthName(state.view.month) :
-    (state.customers.find(c => c.id === state.view.id)?.name || 'Customer');
+  updateHeader();
+}
+
+function updateHeader() {
+  const el = document.getElementById('header-title');
+  if (!el) return;
+  if (viewState.mode === 'admin') el.textContent = 'Admin Panel';
+  else if (viewState.mode === 'items') el.textContent = 'Items & Prices';
+  else if (viewState.mode === 'cloud') el.textContent = 'Cloud Storage';
+  else if (viewState.mode === 'customer') {
+    const c = state.customers.find(x => x.id === viewState.customerId);
+    el.textContent = c ? c.name : 'Customer';
+  } else {
+    el.textContent = monthName(viewState.month);
+  }
 }
 
 function renderSidebar() {
@@ -572,7 +754,7 @@ function renderSidebar() {
   const el = document.getElementById('sidebar-months');
   el.innerHTML = months.map(m => {
     const total = getMonthTotal(m);
-    const active = state.view.type === 'month' && state.view.month === m && state.viewMode !== 'admin' ? 'active' : '';
+    const active = viewState.mode === 'month' && viewState.month === m ? 'active' : '';
     return `<div class="month-item ${active}" data-month="${m}">
       <span class="m-name">${monthName(m)}</span>
       <span class="m-total">${money(total)}</span>
@@ -597,7 +779,7 @@ function renderSidebar() {
 }
 
 function renderMonth() {
-  const m = state.view.month;
+  const m = viewState.month;
   const total = getMonthTotal(m);
   app.innerHTML = `
     <div class="month-summary">
@@ -612,12 +794,15 @@ function renderMonth() {
   `;
   const searchEl = document.getElementById('search');
   searchEl.value = searchQuery;
-  searchEl.oninput = (e) => { searchQuery = e.target.value; updateCustList(); };
+  searchEl.oninput = (e) => {
+    searchQuery = e.target.value;
+    updateCustList();
+  };
   updateCustList();
 }
 
 function updateCustList() {
-  const m = state.view.month;
+  const m = viewState.month;
   const list = getMonthCustomers(m);
   const q = searchQuery.trim().toLowerCase();
   const filtered = q ? list.filter(x => x.customer.name.toLowerCase().includes(q)) : list;
@@ -645,8 +830,8 @@ function updateCustList() {
 }
 
 function renderCustomer() {
-  const c = state.customers.find(x => x.id === state.view.id);
-  if (!c) { goMonth(state.view.fromMonth || currentMonthKey()); return; }
+  const c = state.customers.find(x => x.id === viewState.customerId);
+  if (!c) { goMonth(viewState.fromMonth || currentMonthKey()); return; }
   const allTotal = c.entries.reduce((s,e) => s + e.amount, 0);
   const byMonth = {};
   c.entries.forEach(e => {
@@ -685,14 +870,156 @@ function renderCustomer() {
           `;
         }).join('')}
   `;
-  document.getElementById('back').onclick = () => goMonth(state.view.fromMonth || currentMonthKey());
+  document.getElementById('back').onclick = () => goMonth(viewState.fromMonth || currentMonthKey());
   app.querySelectorAll('.ei-del').forEach(btn => {
     btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(c.id, btn.dataset.eid); };
   });
 }
 
 // ============================================================
-// ADMIN
+// CLOUD PAGE
+// ============================================================
+function renderCloud() {
+  const customersCount = state.customers.length;
+  const entriesCount = state.customers.reduce((s,c)=>s+c.entries.length,0);
+  const itemsCount = state.items.length;
+  const total = getAllTimeTotal();
+
+  app.innerHTML = `
+    <button class="back-btn" id="back-cloud">← Back</button>
+
+    <div class="cloud-card">
+      <div class="cloud-big-status">
+        <div class="cbs-icon">${cloudStatus === 'online' ? '☁️' : cloudStatus === 'syncing' ? '🔄' : '📴'}</div>
+        <div class="cbs-text">${cloudStatus === 'online' ? 'Cloud Connected' : cloudStatus === 'syncing' ? 'Syncing…' : 'Offline'}</div>
+        <div class="cbs-sub">
+          ${cloudStatus === 'online'
+            ? `Last upload: ${timeAgo(lastSyncTime)}`
+            : cloudStatus === 'syncing'
+              ? 'Please wait…'
+              : 'Your data is safe on this phone. It will upload when internet returns.'}
+        </div>
+      </div>
+    </div>
+
+    <div class="cloud-card">
+      <h3 style="margin-bottom:12px;">📊 Your Cloud Data</h3>
+      <div class="cloud-status-row"><span class="cs-label">Total Customers</span><span class="cs-value">${customersCount}</span></div>
+      <div class="cloud-status-row"><span class="cs-label">Total Entries</span><span class="cs-value">${entriesCount}</span></div>
+      <div class="cloud-status-row"><span class="cs-label">Items in List</span><span class="cs-value">${itemsCount}</span></div>
+      <div class="cloud-status-row"><span class="cs-label">Total Rent Recorded</span><span class="cs-value" style="color:var(--green);">${money(total)}</span></div>
+      <div class="cloud-status-row">
+        <span class="cs-label">Sync Status</span>
+        <span class="cs-value">
+          <span class="sync-badge ${cloudStatus === 'online' ? 'sync-online' : cloudStatus === 'syncing' ? 'sync-syncing' : 'sync-offline'}">
+            ${cloudStatus === 'online' ? 'Synced' : cloudStatus === 'syncing' ? 'Syncing' : 'Offline'}
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="cloud-card">
+      <h3 style="margin-bottom:12px;">🔧 Actions</h3>
+      <div class="cloud-actions">
+        <button class="cloud-action-btn upload" id="cloud-upload-btn">☁️ Upload Now (Push to Cloud)</button>
+        <button class="cloud-action-btn download" id="cloud-download-btn">⬇️ Download from Cloud</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('back-cloud').onclick = () => goMonth(currentMonthKey());
+  document.getElementById('cloud-upload-btn').onclick = () => syncUp(true);
+  document.getElementById('cloud-download-btn').onclick = () => {
+    if (!confirm('This will replace your local data with the latest from cloud. Continue?')) return;
+    syncDown(true);
+  };
+}
+
+// ============================================================
+// ITEMS PAGE
+// ============================================================
+function renderItems() {
+  const items = state.items || [];
+  app.innerHTML = `
+    <button class="back-btn" id="back-items">← Back</button>
+    <div class="admin-card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="margin:0;">📦 My Items</h3>
+        <button class="tiny-btn primary" id="add-item-btn">＋ Add Item</button>
+      </div>
+      <p style="font-size:0.82rem;color:var(--muted);">These items show up as quick buttons when you add a new rent entry.</p>
+    </div>
+    <div id="items-list">
+      ${items.length === 0
+        ? `<div class="empty-state"><div class="es-icon">📦</div><div>No items yet. Tap "Add Item".</div></div>`
+        : items.map(it => `
+          <div class="item-row">
+            <div class="ir-left">
+              <div class="ir-name">${escapeHtml(it.name)}</div>
+              ${it.price ? `<div class="ir-price">Default: ${money(it.price)}</div>` : `<div class="ir-price" style="color:var(--muted);">No default price</div>`}
+            </div>
+            <div class="ir-actions">
+              <button class="tiny-btn" data-edit="${it.id}">Edit</button>
+              <button class="tiny-btn danger" data-del="${it.id}">Delete</button>
+            </div>
+          </div>
+        `).join('')}
+    </div>
+  `;
+
+  document.getElementById('back-items').onclick = () => goMonth(currentMonthKey());
+  document.getElementById('add-item-btn').onclick = () => openItemModal();
+  app.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openItemModal(b.dataset.edit));
+  app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteItem(b.dataset.del));
+}
+
+function openItemModal(id) {
+  const modal = document.getElementById('item-modal');
+  if (id) {
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
+    document.getElementById('item-modal-title').textContent = 'Edit Item';
+    document.getElementById('item-edit-id').value = id;
+    document.getElementById('item-name').value = it.name;
+    document.getElementById('item-price').value = it.price || '';
+  } else {
+    document.getElementById('item-modal-title').textContent = 'Add Item';
+    document.getElementById('item-edit-id').value = '';
+    document.getElementById('item-name').value = '';
+    document.getElementById('item-price').value = '';
+  }
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('item-name').focus(), 300);
+}
+function closeItemModal() { document.getElementById('item-modal').classList.remove('open'); }
+
+function saveItem() {
+  const id = document.getElementById('item-edit-id').value;
+  const name = document.getElementById('item-name').value.trim();
+  const price = parseFloat(document.getElementById('item-price').value) || 0;
+  if (!name) return toast('Enter item name');
+  if (id) {
+    const it = state.items.find(x => x.id === id);
+    if (it) { it.name = name; it.price = price; }
+  } else {
+    state.items.push({ id: uid(), name, price });
+  }
+  save();
+  closeItemModal();
+  toast('Item saved ✓');
+  if (viewState.mode === 'items') renderItems();
+}
+
+function deleteItem(id) {
+  if (!confirm('Delete this item?')) return;
+  state.items = state.items.filter(x => x.id !== id);
+  save();
+  toast('Item deleted');
+  renderItems();
+}
+
+// ============================================================
+// ADMIN PANEL
 // ============================================================
 function renderAdmin() {
   const accounts = getAccounts().filter(a => a.role !== 'admin');
@@ -711,7 +1038,6 @@ function renderAdmin() {
           <div class="stat-box"><div class="sb-label">Disabled</div><div class="sb-value">${disabled}</div></div>
         </div>
       </div>
-
       <div class="admin-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h3 style="margin:0;">👥 Users</h3>
@@ -743,7 +1069,6 @@ function renderAdmin() {
               `;
             }).join('')}
       </div>
-
       <div class="admin-card">
         <h3>🔑 Change Admin Password</h3>
         <div class="form-group"><label>New Password</label>
@@ -776,7 +1101,7 @@ function handleUserAction(action, id) {
   if (action === 'extend') { openExtendModal(id); return; }
   if (action === 'delete') {
     if (!confirm(`Delete ${u.name}? Their data on ALL devices will be removed too.`)) return;
-    if (FB && FB.db) FB.set(FB.ref(FB.db, 'shops/' + u.id), null);
+    set(ref(db, 'shops/' + u.id), null).catch(()=>{});
     localStorage.removeItem(DATA_PREFIX + u.id);
     const idx = list.findIndex(x => x.id === id);
     list.splice(idx, 1);
@@ -787,8 +1112,7 @@ function handleUserAction(action, id) {
 }
 
 function openExtendModal(id) {
-  const list = getAccounts();
-  const u = list.find(x => x.id === id);
+  const u = getAccounts().find(x => x.id === id);
   if (!u) return;
   const currentEnd = u.expiresAt && new Date(u.expiresAt) > new Date()
     ? new Date(u.expiresAt).toLocaleString()
@@ -806,17 +1130,13 @@ function confirmExtend() {
   const mo = parseInt(document.getElementById('ex-months').value) || 0;
   const d = parseInt(document.getElementById('ex-days').value) || 0;
   const h = parseInt(document.getElementById('ex-hours').value) || 0;
-
   const ms = durationToMs({ y, mo, d, h });
   if (ms <= 0) return toast('Pick a duration greater than 0');
-
   const list = [...getAccounts()];
   const u = list.find(x => x.id === id);
   if (!u) return;
-
   const base = (u.expiresAt && u.expiresAt > Date.now()) ? u.expiresAt : Date.now();
   u.expiresAt = base + ms;
-
   setAccounts(list);
   toast(`Extended by ${y}y ${mo}mo ${d}d ${h}h`);
   document.getElementById('extend-modal').classList.remove('open');
@@ -826,9 +1146,18 @@ function confirmExtend() {
 // ============================================================
 // NAV
 // ============================================================
-function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', month: m }; searchQuery = ''; render(); window.scrollTo(0,0); }
-function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
-function goAdmin() { state.viewMode = 'admin'; render(); closeSidebar(); window.scrollTo(0,0); }
+function goMonth(m) {
+  viewState = { mode: 'month', month: m, customerId: null, fromMonth: null };
+  searchQuery = '';
+  render(); window.scrollTo(0,0);
+}
+function goCustomer(id, fromMonth) {
+  viewState = { mode: 'customer', month: fromMonth || currentMonthKey(), customerId: id, fromMonth };
+  render(); window.scrollTo(0,0);
+}
+function goAdmin() { viewState = { ...viewState, mode: 'admin' }; render(); closeSidebar(); window.scrollTo(0,0); }
+function goItems() { viewState = { ...viewState, mode: 'items' }; render(); closeSidebar(); window.scrollTo(0,0); }
+function goCloud() { viewState = { ...viewState, mode: 'cloud' }; render(); closeSidebar(); window.scrollTo(0,0); }
 
 // ============================================================
 // CRUD
@@ -842,18 +1171,44 @@ function deleteEntry(custId, entryId) {
 }
 
 // ============================================================
-// MODALS
+// ADD ENTRY MODAL
 // ============================================================
 function openModal() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-item').value = '';
   document.getElementById('f-amount').value = '';
   document.getElementById('f-date').value = todayISO();
+  selectedItem = '';
   const dl = document.getElementById('customer-names');
   dl.innerHTML = state.customers.map(c => `<option value="${escapeAttr(c.name)}">`).join('');
+  renderItemChips();
   document.getElementById('add-modal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 300);
 }
+
+function renderItemChips() {
+  const wrap = document.getElementById('item-chips');
+  const items = state.items || [];
+  if (items.length === 0) {
+    wrap.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);">No items set. Go to <strong>📦 Items &amp; Prices</strong> in the sidebar to add some.</p>`;
+    return;
+  }
+  wrap.innerHTML = items.map(it => `
+    <button type="button" class="item-chip ${selectedItem === it.name ? 'selected' : ''}" data-name="${escapeAttr(it.name)}" data-price="${it.price || 0}">
+      ${escapeHtml(it.name)}${it.price ? `<span class="chip-price">Rs.${it.price}</span>` : ''}
+    </button>
+  `).join('');
+  wrap.querySelectorAll('.item-chip').forEach(chip => {
+    chip.onclick = () => {
+      selectedItem = chip.dataset.name;
+      document.getElementById('f-item').value = selectedItem;
+      const price = parseFloat(chip.dataset.price) || 0;
+      if (price > 0) document.getElementById('f-amount').value = price;
+      renderItemChips();
+    };
+  });
+}
+
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
 
 function openUserModal() {
@@ -873,26 +1228,21 @@ function createUser() {
   const mo = parseInt(document.getElementById('cu-months').value) || 0;
   const d = parseInt(document.getElementById('cu-days').value) || 0;
   const h = parseInt(document.getElementById('cu-hours').value) || 0;
-
   if (!name) return toast('Enter shopkeeper name');
   if (!username || username.length < 3) return toast('Username must be 3+ characters');
   if (!/^[a-z0-9_]+$/.test(username)) return toast('Username: letters, numbers, _ only');
   if (!password || password.length < 4) return toast('Password must be 4+ characters');
-
   const ms = durationToMs({ y, mo, d, h });
   if (ms <= 0) return toast('Set an access duration greater than 0');
-
   const list = [...getAccounts()];
   if (list.find(a => a.username === username)) return toast('Username already taken');
-
-  const newUser = {
+  list.push({
     id: genId(), name, username, password,
     role: 'shopkeeper',
     createdAt: Date.now(),
     expiresAt: Date.now() + ms,
     disabled: false
-  };
-  list.push(newUser);
+  });
   setAccounts(list);
   toast(`✓ Created. @${username} / ${password}`);
   closeUserModal();
@@ -901,18 +1251,18 @@ function createUser() {
 
 function saveEntry() {
   const name = document.getElementById('f-name').value.trim();
-  const item = document.getElementById('f-item').value.trim();
+  const item = document.getElementById('f-item').value.trim() || selectedItem;
   const amount = parseFloat(document.getElementById('f-amount').value);
   const date = document.getElementById('f-date').value;
-
   if (!name) return toast('Please enter customer name');
   if (!date) return toast('Please select a date');
   if (!amount || amount <= 0) return toast('Please enter a valid amount');
-
   let cust = state.customers.find(c => c.name.toLowerCase() === name.toLowerCase());
   if (!cust) { cust = { id: uid(), name, entries: [] }; state.customers.push(cust); }
   cust.entries.push({ id: uid(), date, amount, item: item || 'Rent' });
-  save(); closeModal(); toast('Entry saved ✓');
+  save();
+  closeModal();
+  toast('Saved & uploading to cloud ✓');
   goMonth(monthOf(date));
 }
 
@@ -928,6 +1278,8 @@ document.getElementById('menu-btn').onclick = openSidebar;
 overlay.onclick = closeSidebar;
 document.getElementById('side-add').onclick = () => { closeSidebar(); setTimeout(openModal, 250); };
 document.getElementById('fab').onclick = openModal;
+document.getElementById('items-link').onclick = goItems;
+document.getElementById('cloud-link').onclick = goCloud;
 document.getElementById('close-modal').onclick = closeModal;
 document.getElementById('cancel-btn').onclick = closeModal;
 document.getElementById('save-btn').onclick = saveEntry;
@@ -938,39 +1290,15 @@ document.getElementById('create-user-btn').onclick = createUser;
 document.getElementById('close-extend-modal').onclick = () => document.getElementById('extend-modal').classList.remove('open');
 document.getElementById('cancel-extend-btn').onclick = () => document.getElementById('extend-modal').classList.remove('open');
 document.getElementById('confirm-extend-btn').onclick = confirmExtend;
-
+document.getElementById('close-item-modal').onclick = closeItemModal;
+document.getElementById('cancel-item-btn').onclick = closeItemModal;
+document.getElementById('save-item-btn').onclick = saveItem;
 document.getElementById('logout-btn').onclick = () => {
   if (!confirm('Sign out?')) return;
+  if (unsubShop) unsubShop();
+  if (unsubAccounts) unsubAccounts();
   setSession(null);
   location.reload();
-};
-
-// ============================================================
-// BACKUP
-// ============================================================
-document.getElementById('export-btn').onclick = () => {
-  const data = JSON.stringify({ customers: state.customers, exportedAt: new Date().toISOString() }, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'shop-rent-backup-' + todayISO() + '.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('Backup downloaded');
-};
-document.getElementById('import-btn').onclick = () => document.getElementById('import-file').click();
-document.getElementById('import-file').onchange = (e) => {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!Array.isArray(data.customers)) throw new Error('Invalid');
-      if (!confirm('This will replace ALL current data. Continue?')) return;
-      state.customers = data.customers; save(); render(); toast('Data restored ✓');
-    } catch { toast('Invalid backup file'); }
-  };
-  reader.readAsText(file); e.target.value = '';
 };
 
 // ============================================================
@@ -981,7 +1309,7 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
 // ============================================================
@@ -1004,7 +1332,6 @@ document.querySelectorAll('.gate-tab').forEach(tab => {
     const isLogin = tab.dataset.tab === 'login';
     document.getElementById('tab-login').style.display = isLogin ? 'block' : 'none';
     document.getElementById('tab-activate').style.display = isLogin ? 'none' : 'block';
-    document.getElementById('gate-tabs').style.display = 'flex';
     document.getElementById('gate-subtitle').textContent = isLogin ? 'Sign in to continue' : 'Activate your account';
   };
 });
@@ -1031,12 +1358,10 @@ document.getElementById('activate-btn').onclick = () => {
   if (!username || username.length < 3) return showGateMsg('Username must be 3+ characters');
   if (!/^[a-z0-9_]+$/.test(username)) return showGateMsg('Username: letters, numbers, _ only');
   if (!password || password.length < 4) return showGateMsg('Password must be 4+ characters');
-
   const list = [...getAccounts()];
   const pending = list.find(a => a.activationCode === code && !a.activated);
   if (!pending) return showGateMsg('Invalid or already-used activation code');
   if (list.find(a => a.username === username)) return showGateMsg('Username already taken');
-
   pending.username = username;
   pending.password = password;
   pending.activated = true;
@@ -1061,21 +1386,30 @@ function startApp() {
     return;
   }
   currentUser = acc;
-  load();
-  state.view.month = currentMonthKey();
-  state.viewMode = 'app';
+  loadFromLocal();
+  viewState = { mode: 'month', month: currentMonthKey(), customerId: null, fromMonth: null };
   hideGate();
+
+  cloudStatus = navigator.onLine ? 'online' : 'offline';
+  updateCloudPill();
   render();
+
+  // live subscribe — this also delivers first snapshot
+  subscribeShop();
 }
 
+// Expiry check every 60s (lighter than 30s)
 setInterval(() => {
   if (currentUser && currentUser.role !== 'admin' && isExpired(currentUser)) {
     toast('Access expired. Contact seller.');
     setSession(null);
     setTimeout(() => location.reload(), 1500);
   }
-}, 30000);
+}, 60000);
 
+// ============================================================
+// INIT
+// ============================================================
 (async () => {
   try { await initAccounts(); }
   catch (e) { console.error('Init accounts failed:', e); }
