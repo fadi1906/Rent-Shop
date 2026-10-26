@@ -2,1400 +2,1223 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0d6e4f">
-<title>Shop Rent Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0e14">
+<title>Battle Royale</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-:root {
-  --green: #0d6e4f; --green-dark: #094f39; --green-light: #e6f4ef;
-  --red: #c0392b; --text: #1c2b26; --muted: #6b7a75;
-  --border: #e2e8e5; --bg: #f4f7f6;
-}
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e14; font-family: 'Segoe UI', -apple-system, sans-serif; touch-action: none; }
+#game { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
-.gate { position: fixed; inset: 0; background: linear-gradient(160deg, var(--green), var(--green-dark)); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 500; overflow-y: auto; }
-.gate.hidden { display: none; }
-.gate-card { background: white; border-radius: 16px; padding: 26px 22px; width: 100%; max-width: 400px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
-.gate-logo { text-align: center; margin-bottom: 22px; }
-.gate-logo .gl-icon { font-size: 2.5rem; margin-bottom: 6px; }
-.gate-logo h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
-.gate-logo p { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
-.gate-tabs { display: flex; background: #eef2f0; padding: 4px; border-radius: 10px; margin-bottom: 18px; }
-.gate-tab { flex: 1; text-align: center; padding: 9px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: var(--muted); border: none; background: none; font-family: inherit; }
-.gate-tab.active { background: white; color: var(--green); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-.form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: white; font-family: inherit; }
-.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--green); }
-.gate-msg { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 14px; display: none; }
-.gate-msg.error { background: #fdecea; color: #b3261e; display: block; }
-.gate-msg.success { background: var(--green-light); color: var(--green-dark); display: block; }
-.btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
-.btn-primary { background: var(--green); color: white; }
-.btn-primary:active { background: var(--green-dark); }
-.btn-ghost { background: transparent; color: var(--muted); font-size: 0.82rem; padding: 8px; margin-top: 4px; }
-.gate-footer { text-align: center; margin-top: 14px; font-size: 0.78rem; color: var(--muted); }
+.overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at center, rgba(10,14,20,0.85), rgba(5,8,12,0.98)); backdrop-filter: blur(8px); }
+.overlay.hidden { display: none; }
 
-.header { position: sticky; top: 0; z-index: 10; background: var(--green); color: white; padding: 14px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.header h1 { font-size: 1.02rem; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.icon-btn { background: none; border: none; color: white; font-size: 1.5rem; padding: 4px 8px; cursor: pointer; border-radius: 6px; }
-.icon-btn:active { background: rgba(255,255,255,0.15); }
-.badge-admin { background: #ffd54f; color: #5d4000; font-size: 0.62rem; font-weight: 800; padding: 3px 7px; border-radius: 5px; letter-spacing: 0.5px; text-transform: uppercase; }
+.menu-card { background: linear-gradient(145deg, rgba(20,28,38,0.95), rgba(10,16,22,0.98)); border: 1px solid rgba(255,149,0,0.3); border-radius: 20px; padding: 40px 32px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05); }
+.menu-card h1 { font-size: 2.4rem; font-weight: 900; color: #ff9500; letter-spacing: 2px; margin-bottom: 4px; text-shadow: 0 0 30px rgba(255,149,0,0.5); }
+.menu-card .sub { color: #6b7a85; font-size: 0.85rem; letter-spacing: 4px; margin-bottom: 30px; text-transform: uppercase; }
+.menu-card p { color: #98a5b0; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
+.play-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #ff9500, #ff6b00); border: none; border-radius: 12px; color: #fff; font-size: 1.2rem; font-weight: 800; letter-spacing: 3px; cursor: pointer; box-shadow: 0 8px 24px rgba(255,107,0,0.4); transition: transform 0.15s; }
+.play-btn:active { transform: scale(0.97); }
+.controls { margin-top: 24px; color: #6b7a85; font-size: 0.78rem; line-height: 1.8; }
+.controls kbd { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; color: #fff; font-family: monospace; }
 
-/* CLOUD STATUS PILL in header */
-.cloud-pill { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; letter-spacing: 0.3px; text-transform: uppercase; }
-.cloud-online { background: #b7e4c7; color: #0b5d3b; }
-.cloud-offline { background: #ffd6d6; color: #a01b1b; }
-.cloud-syncing { background: #fff3cd; color: #7a5c00; }
+#hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.health-wrap { position: absolute; bottom: 20px; left: 20px; width: 260px; }
+.health-bar { height: 20px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden; position: relative; }
+.health-fill { height: 100%; background: linear-gradient(90deg, #34c759, #2ed573); transition: width 0.2s; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
+.health-fill.low { background: linear-gradient(90deg, #ff3b30, #ff6b00); }
+.health-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.weapon-info { position: absolute; bottom: 20px; right: 20px; text-align: right; color: #fff; }
+.weapon-name { font-size: 1.1rem; font-weight: 800; color: #ff9500; letter-spacing: 2px; margin-bottom: 4px; }
+.ammo { font-size: 1.8rem; font-weight: 900; font-family: monospace; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+.ammo .divider { color: #6b7a85; margin: 0 4px; }
+.ammo .max { color: #6b7a85; font-size: 1.2rem; }
+#reloading { color: #ff9500; font-size: 0.8rem; margin-top: 4px; animation: pulse 0.6s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 290px; max-width: 85vw; background: white; z-index: 100; transform: translateX(-100%); transition: transform 0.25s ease; display: flex; flex-direction: column; box-shadow: 2px 0 12px rgba(0,0,0,0.15); }
-.sidebar.open { transform: translateX(0); }
-.sidebar-header { background: var(--green); color: white; padding: 18px 16px; }
-.sidebar-header h2 { font-size: 1rem; margin-bottom: 4px; }
-.sidebar-header p { font-size: 0.82rem; opacity: 0.92; }
-.sidebar-content { flex: 1; overflow-y: auto; padding: 12px 0; }
-.sidebar-section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); padding: 12px 16px 6px; font-weight: 700; }
-.month-item { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 3px solid transparent; }
-.month-item:active { background: var(--green-light); }
-.month-item.active { background: var(--green-light); border-left-color: var(--green); }
-.month-item .m-name { font-weight: 500; font-size: 0.92rem; }
-.month-item .m-total { font-size: 0.82rem; color: var(--green); font-weight: 700; }
-.side-link { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.92rem; font-weight: 500; }
-.side-link:active { background: var(--green-light); }
-.add-btn-side { margin: 12px 16px; background: var(--green); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; width: calc(100% - 32px); }
-.add-btn-side:active { background: var(--green-dark); }
-.sidebar-footer { padding: 10px 16px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-.mini-btn { flex:1; padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text); }
-.mini-btn:active { background: var(--green-light); }
-.user-box { padding: 12px 16px; background: #f8fbfa; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
-.user-box strong { color: var(--text); }
+.top-bar { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; align-items: center; }
+.alive-count { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 16px; color: #fff; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.alive-count::before { content: '●'; color: #34c759; font-size: 0.8rem; }
+.kill-count { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,149,0,0.4); border-radius: 20px; padding: 6px 16px; color: #ff9500; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.kill-count::before { content: '☠'; }
+.zone-info { background: rgba(0,0,0,0.6); border: 1px solid rgba(90,200,250,0.4); border-radius: 20px; padding: 6px 16px; color: #5ac8fa; font-weight: 700; font-size: 0.85rem; }
 
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-.overlay.open { opacity: 1; pointer-events: auto; }
+#minimap { position: absolute; bottom: 20px; right: 20px; width: 130px; height: 130px; background: rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.15); border-radius: 8px; overflow: hidden; }
+#killfeed { position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.kill-msg { background: rgba(0,0,0,0.7); border-left: 3px solid #ff3b30; padding: 6px 12px; border-radius: 4px; color: #fff; font-size: 0.82rem; font-weight: 600; animation: slidein 0.3s; }
+@keyframes slidein { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-.main { padding: 16px; padding-bottom: 90px; max-width: 720px; margin: 0 auto; }
-.month-summary { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
-.month-summary .ms-label { font-size: 0.8rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
-.month-summary .ms-month { font-size: 1.05rem; font-weight: 600; margin: 4px 0 10px; }
-.month-summary .ms-total { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; }
-.search-box { margin-bottom: 14px; }
-.search-box input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: white; }
-.search-box input:focus { outline: none; border-color: var(--green); }
-.customer-card { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-.customer-card:active { background: var(--green-light); }
-.customer-card .cc-left { flex: 1; min-width: 0; }
-.customer-card .cc-name { font-weight: 600; font-size: 1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.customer-card .cc-meta { font-size: 0.78rem; color: var(--muted); }
-.customer-card .cc-right { text-align: right; margin-left: 12px; display: flex; align-items: center; gap: 6px; }
-.customer-card .cc-amount { font-weight: 700; color: var(--green); font-size: 1rem; }
-.customer-card .cc-arrow { color: var(--muted); font-size: 1.2rem; }
-.empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
-.empty-state .es-icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
-.back-btn { background: none; border: none; color: var(--green); font-size: 0.95rem; font-weight: 600; cursor: pointer; padding: 4px 0; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
-.detail-header { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
-.detail-header .dh-name { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
-.detail-header .dh-total-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.detail-header .dh-total { font-size: 1.55rem; font-weight: 700; color: var(--green); margin-top: 2px; }
-.detail-header .dh-meta { font-size: 0.82rem; color: var(--muted); margin-top: 6px; }
-.month-group { margin-bottom: 20px; }
-.month-group-title { font-size: 0.82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; padding: 0 4px 8px; }
-.entry-item { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
-.entry-item .ei-left { flex: 1; min-width: 0; }
-.entry-item .ei-item { font-weight: 500; margin-bottom: 2px; }
-.entry-item .ei-date { font-size: 0.78rem; color: var(--muted); }
-.entry-item .ei-amount { font-weight: 700; color: var(--green); margin-left: 12px; white-space: nowrap; }
-.entry-item .ei-del { background: none; border: none; color: var(--red); font-size: 1rem; cursor: pointer; padding: 6px 4px 6px 8px; margin-left: 4px; opacity: 0.7; }
+#touch-controls { position: fixed; inset: 0; z-index: 15; pointer-events: none; display: none; }
+#touch-controls.active { display: block; }
+.joystick { position: absolute; bottom: 30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.15); pointer-events: auto; }
+.joystick::after { content: ''; position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: rgba(255,149,0,0.5); border: 2px solid rgba(255,149,0,0.8); border-radius: 50%; transform: translate(-50%, -50%); }
+.joystick.left { left: 30px; }
+.joystick.right { right: 30px; }
+.joystick .knob { position: absolute; top: 50%; left: 50%; width: 55px; height: 55px; background: rgba(255,149,0,0.85); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
 
-.modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.5); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-.modal.open { opacity: 1; pointer-events: auto; }
-.modal-sheet { background: white; width: 100%; max-width: 480px; border-radius: 18px 18px 0 0; padding: 20px; max-height: 92vh; overflow-y: auto; transform: translateY(30px); transition: transform 0.25s ease; }
-.modal.open .modal-sheet { transform: translateY(0); }
-.modal-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-.form-actions { display: flex; gap: 10px; margin-top: 20px; }
-.form-actions .btn { flex: 1; }
-.btn-secondary { background: #eef2f0; color: var(--text); }
-
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1c2b26; color: white; padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; z-index: 300; opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 90vw; text-align: center; }
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.fab { position: fixed; bottom: 20px; right: 20px; z-index: 20; width: 58px; height: 58px; border-radius: 50%; background: var(--green); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 14px rgba(13,110,79,0.4); display: flex; align-items: center; justify-content: center; line-height: 1; }
-.fab:active { background: var(--green-dark); transform: scale(0.96); }
-
-.admin-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
-.admin-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
-.admin-card h3 { font-size: 1rem; margin-bottom: 12px; }
-.user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
-.user-row:last-child { border-bottom: none; }
-.user-row .ur-left { flex: 1; min-width: 200px; }
-.user-row .ur-name { font-weight: 600; margin-bottom: 2px; }
-.user-row .ur-meta { font-size: 0.78rem; color: var(--muted); }
-.status-pill { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
-.status-active { background: var(--green-light); color: var(--green-dark); }
-.status-expired { background: #fdecea; color: #b3261e; }
-.status-disabled { background: #eee; color: #555; }
-.user-row .ur-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.tiny-btn { padding: 7px 10px; font-size: 0.75rem; border-radius: 7px; border: 1px solid var(--border); background: white; font-weight: 600; cursor: pointer; color: var(--text); }
-.tiny-btn.danger { color: var(--red); border-color: #f3c9c4; }
-.tiny-btn.primary { background: var(--green); color: white; border-color: var(--green); }
-.tiny-btn.success { background: #2e7d32; color: white; border-color: #2e7d32; }
-
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.stat-box { background: var(--green-light); padding: 14px; border-radius: 10px; }
-.stat-box .sb-label { font-size: 0.72rem; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; }
-.stat-box .sb-value { font-size: 1.4rem; font-weight: 700; color: var(--green-dark); margin-top: 4px; }
-
-.pw-reveal { font-family: monospace; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
-.dur-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.dur-grid label { font-size: 0.72rem; color: var(--muted); }
-.quick-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-
-.item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: white; }
-.item-row .ir-left { flex: 1; min-width: 0; }
-.item-row .ir-name { font-weight: 600; margin-bottom: 2px; }
-.item-row .ir-price { font-size: 0.8rem; color: var(--green); font-weight: 600; }
-.item-row .ir-actions { display: flex; gap: 6px; }
-
-.item-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.item-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text); }
-.item-chip:active { background: var(--green-light); }
-.item-chip.selected { background: var(--green); color: white; border-color: var(--green); }
-.item-chip .chip-price { opacity: 0.7; font-weight: 500; margin-left: 4px; }
-
-/* CLOUD STATUS PANEL */
-.cloud-panel { padding: 16px; max-width: 720px; margin: 0 auto; }
-.cloud-card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border); }
-.cloud-status-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-.cloud-status-row:last-child { border-bottom: none; }
-.cloud-status-row .cs-label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
-.cloud-status-row .cs-value { font-size: 0.9rem; font-weight: 700; color: var(--text); }
-.cloud-big-status { text-align: center; padding: 20px 12px; }
-.cloud-big-status .cbs-icon { font-size: 3rem; margin-bottom: 8px; }
-.cloud-big-status .cbs-text { font-size: 1.1rem; font-weight: 700; }
-.cloud-big-status .cbs-sub { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
-.cloud-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-.cloud-action-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.cloud-action-btn.upload { background: var(--green); color: white; }
-.cloud-action-btn.upload:active { background: var(--green-dark); }
-.cloud-action-btn.download { background: #eef2f0; color: var(--text); }
-.cloud-action-btn.download:active { background: #dfe6e3; }
-.cloud-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.sync-badge { display:inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.sync-online { background: #b7e4c7; color: #0b5d3b; }
-.sync-offline { background: #ffd6d6; color: #a01b1b; }
-.sync-syncing { background: #fff3cd; color: #7a5c00; }
+.gameover-card { background: linear-gradient(145deg, rgba(20,28,38,0.95), rgba(10,16,22,0.98)); border: 1px solid rgba(255,59,48,0.4); border-radius: 20px; padding: 40px 32px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+.gameover-card.win { border-color: rgba(52,199,89,0.5); }
+.gameover-card h2 { font-size: 2rem; font-weight: 900; color: #ff3b30; letter-spacing: 2px; margin-bottom: 4px; }
+.gameover-card.win h2 { color: #34c759; text-shadow: 0 0 30px rgba(52,199,89,0.5); }
+.gameover-card .stats { color: #98a5b0; font-size: 0.95rem; line-height: 2; margin: 24px 0; }
+.gameover-card .stats strong { color: #fff; font-size: 1.3rem; }
 </style>
 </head>
 <body>
+<canvas id="game"></canvas>
 
-<div class="gate" id="gate">
-  <div class="gate-card">
-    <div class="gate-logo">
-      <div class="gl-icon">🏪</div>
-      <h1>Shop Rent Manager</h1>
-      <p id="gate-subtitle">Sign in to continue</p>
-    </div>
-    <div class="gate-tabs" id="gate-tabs">
-      <button class="gate-tab active" data-tab="login">Login</button>
-      <button class="gate-tab" data-tab="activate">Enter Code</button>
-    </div>
-    <div class="gate-msg" id="gate-msg"></div>
-    <div id="tab-login">
-      <div class="form-group"><label>Username</label>
-        <input type="text" id="login-user" autocomplete="username" placeholder="your username">
-      </div>
-      <div class="form-group"><label>Password</label>
-        <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
-      </div>
-      <button class="btn btn-primary" id="login-btn">Sign In</button>
-    </div>
-    <div id="tab-activate" style="display:none;">
-      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;text-align:center;">Enter the activation code you received from the seller.</p>
-      <div class="form-group"><label>Activation Code</label>
-        <input type="text" id="activate-code" placeholder="XXXX-XXXX-XXXX" style="text-transform:uppercase;font-family:monospace;letter-spacing:2px;text-align:center;">
-      </div>
-      <div class="form-group"><label>Choose Username</label>
-        <input type="text" id="activate-user" placeholder="pick a username" autocomplete="off">
-      </div>
-      <div class="form-group"><label>Choose Password</label>
-        <input type="password" id="activate-pass" placeholder="min 4 characters" autocomplete="new-password">
-      </div>
-      <button class="btn btn-primary" id="activate-btn">Activate Account</button>
-    </div>
-    <div class="gate-footer"><p>Contact seller to buy access</p></div>
+<div id="hud" style="display:none;">
+  <div class="top-bar">
+    <div class="alive-count"><span id="alive-num">0</span> alive</div>
+    <div class="kill-count"><span id="kill-num">0</span></div>
+    <div class="zone-info" id="zone-info">ZONE IN 30s</div>
   </div>
+  <div id="killfeed"></div>
+  <div class="health-wrap">
+    <div class="health-bar">
+      <div class="health-fill" id="health-fill" style="width: 100%;"></div>
+      <div class="health-text" id="health-text">100 / 100</div>
+    </div>
+  </div>
+  <div class="weapon-info">
+    <div class="weapon-name" id="weapon-name">PISTOL</div>
+    <div class="ammo"><span id="ammo-current">∞</span><span class="divider">/</span><span class="max" id="ammo-max">∞</span></div>
+    <div id="reloading" style="display:none;">RELOADING...</div>
+  </div>
+  <canvas id="minimap" width="130" height="130"></canvas>
 </div>
 
-<div id="app-root" style="display:none;">
-  <div class="overlay" id="overlay"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h2>🏪 Shop Rent Manager</h2>
-      <p>All-Time Total: <strong id="all-total">Rs. 0</strong></p>
-    </div>
-    <div class="user-box" id="user-box"></div>
-    <div class="sidebar-content">
-      <button class="add-btn-side" id="side-add">＋ Add Rent Entry</button>
-      <div class="sidebar-section-title">Months</div>
-      <div id="sidebar-months"></div>
-      <div class="sidebar-section-title">Settings</div>
-      <div class="side-link" id="items-link">📦 <span>Items &amp; Prices</span></div>
-      <div class="side-link" id="cloud-link">☁️ <span>Cloud Storage</span></div>
-      <div class="sidebar-section-title" id="admin-section-title" style="display:none;">Admin</div>
-      <div class="side-link" id="admin-link" style="display:none;">👑 <span>Admin Panel</span></div>
-    </div>
-    <div class="sidebar-footer" style="border-top:none;padding-top:0;">
-      <button class="mini-btn" id="logout-btn" style="color:var(--red);border-color:#f3c9c4;">Sign Out</button>
-    </div>
-  </aside>
-  <header class="header">
-    <button class="icon-btn" id="menu-btn">☰</button>
-    <h1 id="header-title">Shop Rent Manager</h1>
-    <span class="badge-admin" id="admin-badge" style="display:none;">Admin</span>
-    <span class="cloud-pill cloud-online" id="cloud-pill">☁️ Synced</span>
-  </header>
-  <main class="main" id="app"></main>
-  <button class="fab" id="fab">＋</button>
+<div id="touch-controls">
+  <div class="joystick left" id="stick-left"><div class="knob"></div></div>
+  <div class="joystick right" id="stick-right"><div class="knob"></div></div>
 </div>
 
-<div class="modal" id="add-modal">
-  <div class="modal-sheet">
-    <div class="modal-title"><span>Add Rent Entry</span>
-      <button class="icon-btn" id="close-modal" style="color:#666;font-size:1.3rem;">✕</button>
-    </div>
-    <div class="form-group"><label>Customer Name</label>
-      <input type="text" id="f-name" list="customer-names" placeholder="e.g. Ahmed Ali" autocomplete="off">
-      <datalist id="customer-names"></datalist>
-    </div>
-    <div class="form-group">
-      <label>Item / Reason</label>
-      <div id="item-chips" class="item-chips"></div>
-      <input type="text" id="f-item" placeholder="or type item name" autocomplete="off" style="margin-top:8px;">
-    </div>
-    <div class="form-group"><label>Amount (PKR)</label>
-      <input type="number" id="f-amount" placeholder="0" inputmode="decimal" min="0" step="any">
-    </div>
-    <div class="form-group"><label>Date</label>
-      <input type="date" id="f-date">
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
-      <button class="btn btn-primary" id="save-btn">Save</button>
+<div class="overlay" id="menu">
+  <div class="menu-card">
+    <h1>BATTLE ROYALE</h1>
+    <div class="sub">Last One Standing</div>
+    <p>15 players. Shrinking zone. Only one winner.</p>
+    <button class="play-btn" id="play-btn">▶ DROP IN</button>
+    <div class="controls">
+      <div><kbd>W A S D</kbd> Move</div>
+      <div><kbd>MOUSE</kbd> Aim · <kbd>CLICK</kbd> Shoot</div>
+      <div><kbd>R</kbd> Reload · <kbd>E</kbd> Pickup loot</div>
     </div>
   </div>
 </div>
 
-<div class="modal" id="item-modal">
-  <div class="modal-sheet">
-    <div class="modal-title"><span id="item-modal-title">Add Item</span>
-      <button class="icon-btn" id="close-item-modal" style="color:#666;font-size:1.3rem;">✕</button>
-    </div>
-    <input type="hidden" id="item-edit-id">
-    <div class="form-group"><label>Item Name</label>
-      <input type="text" id="item-name" placeholder="e.g. Rice bag 5kg" autocomplete="off">
-    </div>
-    <div class="form-group"><label>Default Price (PKR) — optional</label>
-      <input type="number" id="item-price" placeholder="0" inputmode="decimal" min="0" step="any">
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-secondary" id="cancel-item-btn">Cancel</button>
-      <button class="btn btn-primary" id="save-item-btn">Save Item</button>
-    </div>
+<div class="overlay hidden" id="gameover">
+  <div class="gameover-card" id="gameover-card">
+    <h2 id="gameover-title">ELIMINATED</h2>
+    <div class="stats" id="gameover-stats"></div>
+    <button class="play-btn" id="restart-btn">PLAY AGAIN</button>
   </div>
 </div>
 
-<div class="modal" id="user-modal">
-  <div class="modal-sheet">
-    <div class="modal-title"><span>Create User</span>
-      <button class="icon-btn" id="close-user-modal" style="color:#666;font-size:1.3rem;">✕</button>
-    </div>
-    <div class="form-group"><label>Shopkeeper Name</label>
-      <input type="text" id="u-name" placeholder="e.g. Bilal Store" autocomplete="off">
-    </div>
-    <div class="form-group"><label>Username</label>
-      <input type="text" id="u-user" placeholder="e.g. bilal01" autocomplete="off">
-    </div>
-    <div class="form-group"><label>Password</label>
-      <input type="text" id="u-pass" placeholder="set a password" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>Access Duration</label>
-      <div class="dur-grid">
-        <div><label>Years</label><input type="number" id="cu-years" value="0" min="0" max="20" style="text-align:center;"></div>
-        <div><label>Months</label><input type="number" id="cu-months" value="1" min="0" max="120" style="text-align:center;"></div>
-        <div><label>Days</label><input type="number" id="cu-days" value="0" min="0" max="365" style="text-align:center;"></div>
-        <div><label>Hours</label><input type="number" id="cu-hours" value="0" min="0" max="720" style="text-align:center;"></div>
-      </div>
-      <div class="quick-row">
-        <button type="button" class="tiny-btn" onclick="setDur('cu',0,0,1,0)">1 day</button>
-        <button type="button" class="tiny-btn" onclick="setDur('cu',0,0,7,0)">7 days</button>
-        <button type="button" class="tiny-btn" onclick="setDur('cu',0,1,0,0)">1 month</button>
-        <button type="button" class="tiny-btn" onclick="setDur('cu',0,3,0,0)">3 months</button>
-        <button type="button" class="tiny-btn" onclick="setDur('cu',0,6,0,0)">6 months</button>
-        <button type="button" class="tiny-btn" onclick="setDur('cu',1,0,0,0)">1 year</button>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-secondary" id="cancel-user-btn">Cancel</button>
-      <button class="btn btn-primary" id="create-user-btn">Create</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="extend-modal">
-  <div class="modal-sheet">
-    <div class="modal-title"><span>Extend Access</span>
-      <button class="icon-btn" id="close-extend-modal" style="color:#666;font-size:1.3rem;">✕</button>
-    </div>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">
-      Extending <strong id="extend-username"></strong>
-    </p>
-    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;">
-      Current: <span id="extend-current"></span>
-    </p>
-    <input type="hidden" id="extend-id">
-    <div class="form-group">
-      <label>Add Duration</label>
-      <div class="dur-grid">
-        <div><label>Years</label><input type="number" id="ex-years" value="0" min="0" max="20" style="text-align:center;"></div>
-        <div><label>Months</label><input type="number" id="ex-months" value="1" min="0" max="120" style="text-align:center;"></div>
-        <div><label>Days</label><input type="number" id="ex-days" value="0" min="0" max="365" style="text-align:center;"></div>
-        <div><label>Hours</label><input type="number" id="ex-hours" value="0" min="0" max="720" style="text-align:center;"></div>
-      </div>
-      <div class="quick-row">
-        <button type="button" class="tiny-btn" onclick="setDur('ex',0,0,1,0)">1 day</button>
-        <button type="button" class="tiny-btn" onclick="setDur('ex',0,0,7,0)">7 days</button>
-        <button type="button" class="tiny-btn" onclick="setDur('ex',0,1,0,0)">1 month</button>
-        <button type="button" class="tiny-btn" onclick="setDur('ex',0,3,0,0)">3 months</button>
-        <button type="button" class="tiny-btn" onclick="setDur('ex',0,6,0,0)">6 months</button>
-        <button type="button" class="tiny-btn" onclick="setDur('ex',1,0,0,0)">1 year</button>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-secondary" id="cancel-extend-btn">Cancel</button>
-      <button class="btn btn-primary" id="confirm-extend-btn">Extend Access</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBCd7XOvTThXof8HFJ6K9zECPf_swj5zIk",
-  authDomain: "rent-management-78488.firebaseapp.com",
-  databaseURL: "https://rent-management-78488-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "rent-management-78488",
-  storageBucket: "rent-management-78488.firebasestorage.app",
-  messagingSenderId: "877666314630",
-  appId: "1:877666314630:web:1c5647f642819a44152407"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-const db = getDatabase(fbApp);
-const FB = { ref, onValue, set, get, serverTimestamp, db };
-
-const ACCOUNTS_KEY = 'srm_accounts';
-const SESSION_KEY  = 'srm_session';
-const DATA_PREFIX  = 'srm_data_';
-const ADMIN_USER   = 'admin';
-const ADMIN_PASS   = 'sadafahad@01';
-
+<script>
 // ============================================================
-// CLOUD STATUS
+// SETUP
 // ============================================================
-let cloudStatus = 'online'; // 'online' | 'offline' | 'syncing'
-let lastSyncTime = null;
-
-function updateCloudPill() {
-  const pill = document.getElementById('cloud-pill');
-  if (!pill) return;
-  pill.className = 'cloud-pill ';
-  if (cloudStatus === 'online') { pill.className += 'cloud-online'; pill.textContent = '☁️ Synced'; }
-  else if (cloudStatus === 'syncing') { pill.className += 'cloud-syncing'; pill.textContent = '☁️ Syncing…'; }
-  else { pill.className += 'cloud-offline'; pill.textContent = '☁️ Offline'; }
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
 }
+window.addEventListener('resize', resize);
+resize();
 
-window.addEventListener('online', () => { cloudStatus = 'online'; updateCloudPill(); if (currentUser) syncUp(true); });
-window.addEventListener('offline', () => { cloudStatus = 'offline'; updateCloudPill(); });
+const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 // ============================================================
-// ACCOUNTS
+// AUDIO (synthesized)
 // ============================================================
-let ACCOUNTS_CACHE = [];
-function getAccounts() { return ACCOUNTS_CACHE; }
-function setAccounts(list) {
-  ACCOUNTS_CACHE = list;
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-  if (FB && FB.db) FB.set(FB.ref(FB.db, 'accounts'), list).catch(e => console.error(e));
+let audioCtx;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
 }
-function toArray(val) {
-  if (!val) return [];
-  if (Array.isArray(val)) return val;
-  if (typeof val === 'object') return Object.values(val);
-  return [];
-}
-async function initAccounts() {
-  try {
-    const local = JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
-    ACCOUNTS_CACHE = local;
-  } catch { ACCOUNTS_CACHE = []; }
-
-  return new Promise(resolve => {
-    const accRef = FB.ref(FB.db, 'accounts');
-    let firstFire = true;
-    FB.onValue(accRef, (snap) => {
-      const val = snap.val();
-      const list = toArray(val);
-      if (list.length > 0) {
-        ACCOUNTS_CACHE = list;
-        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
-      } else if (firstFire) {
-        const seed = ACCOUNTS_CACHE.length ? ACCOUNTS_CACHE : [{
-          id: 'admin', name: 'Administrator', username: ADMIN_USER,
-          password: ADMIN_PASS, role: 'admin',
-          createdAt: Date.now(), expiresAt: null, disabled: false
-        }];
-        ACCOUNTS_CACHE = seed;
-        FB.set(accRef, seed);
-      }
-      firstFire = false;
-      resolve();
+function playSound(type) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  if (type === 'shoot') {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.setValueAtTime(300, t);
+    o.frequency.exponentialRampToValueAtTime(60, t + 0.08);
+    o.type = 'sawtooth';
+    g.gain.setValueAtTime(0.15, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.1);
+  } else if (type === 'hit') {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.setValueAtTime(800, t);
+    o.frequency.exponentialRampToValueAtTime(200, t + 0.06);
+    o.type = 'square';
+    g.gain.setValueAtTime(0.08, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.08);
+  } else if (type === 'kill') {
+    [400, 600, 900].forEach((freq, i) => {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.frequency.setValueAtTime(freq, t + i * 0.05);
+      o.type = 'triangle';
+      g.gain.setValueAtTime(0.1, t + i * 0.05);
+      g.gain.exponentialRampToValueAtTime(0.01, t + i * 0.05 + 0.15);
+      o.connect(g).connect(audioCtx.destination);
+      o.start(t + i * 0.05); o.stop(t + i * 0.05 + 0.15);
     });
-  });
-}
-function isExpired(acc) { return acc.expiresAt ? Date.now() > acc.expiresAt : false; }
-function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
-function setSession(s) { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }
-
-function durationToMs(d) {
-  return (d.y||0)*365*86400000 + (d.mo||0)*30*86400000 + (d.d||0)*86400000 + (d.h||0)*3600000;
-}
-function formatRemaining(ms) {
-  if (ms <= 0) return 'Expired';
-  const s = Math.floor(ms/1000);
-  const d = Math.floor(s/86400);
-  const h = Math.floor((s%86400)/3600);
-  const m = Math.floor((s%3600)/60);
-  if (d > 0) return `${d}d ${h}h left`;
-  if (h > 0) return `${h}h ${m}m left`;
-  return `${m}m left`;
-}
-function setDur(prefix, y, mo, d, h) {
-  document.getElementById(prefix + '-years').value = y;
-  document.getElementById(prefix + '-months').value = mo;
-  document.getElementById(prefix + '-days').value = d;
-  document.getElementById(prefix + '-hours').value = h;
-}
-window.setDur = setDur;
-
-// ============================================================
-// SHOP DATA
-// ============================================================
-let currentUser = null;
-let state = {
-  customers: [],
-  items: [],
-  view: { type: 'month', month: '' },
-  viewMode: 'app'
-};
-let searchQuery = '';
-let unsubShop = null;
-let selectedItem = '';
-let skipNextRemoteUpdate = false;
-
-function dataKey() { return DATA_PREFIX + (currentUser?.id || 'anon'); }
-
-// Save locally + push to cloud
-function save() {
-  if (!currentUser) return;
-  const payload = { customers: state.customers, items: state.items };
-  localStorage.setItem(dataKey(), JSON.stringify(payload));
-  syncUp();
-}
-
-// Push current data to Firebase
-async function syncUp(manual) {
-  if (!currentUser) return;
-  if (!navigator.onLine) { if (manual) toast('No internet — will sync when online'); return; }
-  cloudStatus = 'syncing'; updateCloudPill();
-  if (manual) toast('Uploading to cloud…');
-  try {
-    const payload = {
-      customers: state.customers,
-      items: state.items,
-      lastSync: Date.now(),
-      syncBy: currentUser.username
-    };
-    skipNextRemoteUpdate = true;
-    await FB.set(FB.ref(FB.db, 'shops/' + currentUser.id), payload);
-    lastSyncTime = Date.now();
-    cloudStatus = 'online'; updateCloudPill();
-    if (manual) toast('☁️ Uploaded to cloud ✓');
-  } catch (e) {
-    console.error('Sync up failed', e);
-    cloudStatus = 'offline'; updateCloudPill();
-    if (manual) toast('Upload failed: ' + e.message);
+  } else if (type === 'pickup') {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.setValueAtTime(500, t);
+    o.frequency.exponentialRampToValueAtTime(1200, t + 0.15);
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.2);
+  } else if (type === 'damage') {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(80, t + 0.15);
+    o.type = 'sawtooth';
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.15);
   }
 }
 
-// Force download from Firebase (replaces local)
-async function syncDown(manual) {
-  if (!currentUser) return;
-  if (!navigator.onLine) { if (manual) toast('No internet'); return; }
-  cloudStatus = 'syncing'; updateCloudPill();
-  if (manual) toast('Downloading from cloud…');
-  try {
-    const snap = await FB.get(FB.ref(FB.db, 'shops/' + currentUser.id));
-    const val = snap.val();
-    if (val) {
-      state.customers = val.customers ? (Array.isArray(val.customers) ? val.customers : Object.values(val.customers)) : [];
-      state.items = val.items ? (Array.isArray(val.items) ? val.items : Object.values(val.items)) : [];
-      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
-      lastSyncTime = Date.now();
-      cloudStatus = 'online'; updateCloudPill();
-      render();
-      if (manual) toast('☁️ Downloaded from cloud ✓');
-    } else {
-      cloudStatus = 'online'; updateCloudPill();
-      if (manual) toast('Nothing in cloud yet');
-    }
-  } catch (e) {
-    console.error('Sync down failed', e);
-    cloudStatus = 'offline'; updateCloudPill();
-    if (manual) toast('Download failed: ' + e.message);
-  }
-}
-
-function load() {
-  if (!currentUser) return;
-  try {
-    const raw = localStorage.getItem(dataKey());
-    if (raw) {
-      const d = JSON.parse(raw);
-      state.customers = d.customers || [];
-      state.items = d.items || [];
-    } else { state.customers = []; state.items = []; }
-  } catch { state.customers = []; state.items = []; }
-
-  if (unsubShop) unsubShop();
-  const shopRef = FB.ref(FB.db, 'shops/' + currentUser.id);
-  FB.onValue(shopRef, (snap) => {
-    if (skipNextRemoteUpdate) { skipNextRemoteUpdate = false; return; }
-    const val = snap.val();
-    if (val) {
-      if (val.customers) {
-        state.customers = Array.isArray(val.customers) ? val.customers : Object.values(val.customers);
-      } else state.customers = [];
-      if (val.items) {
-        state.items = Array.isArray(val.items) ? val.items : Object.values(val.items);
-      } else state.items = [];
-      localStorage.setItem(dataKey(), JSON.stringify({ customers: state.customers, items: state.items }));
-      if (val.lastSync) lastSyncTime = val.lastSync;
-      cloudStatus = 'online'; updateCloudPill();
-      if (document.getElementById('app-root').style.display !== 'none') render();
-    }
-  });
-}
-
 // ============================================================
-// HELPERS
+// WEAPONS
 // ============================================================
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-function currentMonthKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
-function monthOf(d) { return d.slice(0,7); }
-function monthName(key) {
-  const [y,m] = key.split('-');
-  const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  return names[+m-1] + ' ' + y;
-}
-function todayISO() { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function formatDate(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return d.getDate() + ' ' + mo[d.getMonth()] + ' ' + d.getFullYear();
-}
-function money(n) {
-  const num = Number(n) || 0;
-  const neg = num < 0; const abs = Math.abs(num);
-  const parts = abs.toFixed(2).replace(/\.00$/, '').split('.');
-  let intPart = parts[0]; const decPart = parts[1];
-  let result = '';
-  if (intPart.length <= 3) result = intPart;
-  else {
-    const last3 = intPart.slice(-3);
-    let rest = intPart.slice(0, -3);
-    const groups = [];
-    while (rest.length > 2) { groups.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
-    if (rest.length) groups.unshift(rest);
-    result = groups.join(',') + ',' + last3;
-  }
-  return (neg ? '-' : '') + 'Rs. ' + result + (decPart ? '.' + decPart : '');
-}
-function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
-function escapeAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-function timeAgo(ts) {
-  if (!ts) return 'never';
-  const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 5) return 'just now';
-  if (s < 60) return s + 's ago';
-  const m = Math.floor(s/60);
-  if (m < 60) return m + 'm ago';
-  const h = Math.floor(m/60);
-  if (h < 24) return h + 'h ago';
-  const d = Math.floor(h/24);
-  return d + 'd ago';
-}
-
-// ============================================================
-// CALCULATIONS
-// ============================================================
-function getAllMonths() {
-  const set = new Set();
-  state.customers.forEach(c => c.entries.forEach(e => set.add(monthOf(e.date))));
-  set.add(currentMonthKey());
-  return [...set].sort().reverse();
-}
-function getMonthTotal(m) {
-  let t = 0;
-  state.customers.forEach(c => c.entries.forEach(e => { if (monthOf(e.date) === m) t += e.amount; }));
-  return t;
-}
-function getMonthCustomers(m) {
-  return state.customers.map(c => {
-    const entries = c.entries.filter(e => monthOf(e.date) === m).sort((a,b)=>a.date.localeCompare(b.date));
-    const total = entries.reduce((s,e)=>s+e.amount,0);
-    return { customer: c, entries, total };
-  }).filter(x => x.entries.length > 0)
-    .sort((a,b) => a.customer.name.localeCompare(b.customer.name));
-}
-function getAllTimeTotal() {
-  return state.customers.reduce((s,c) => s + c.entries.reduce((a,e)=>a+e.amount,0), 0);
-}
-
-// ============================================================
-// RENDER
-// ============================================================
-const app = document.getElementById('app');
-
-function render() {
-  if (state.viewMode === 'admin') { renderAdmin(); return; }
-  if (state.viewMode === 'items') { renderItems(); return; }
-  if (state.viewMode === 'cloud') { renderCloud(); return; }
-  if (!state.view.month) state.view.month = currentMonthKey();
-  if (state.view.type === 'month') renderMonth();
-  else renderCustomer();
-  renderSidebar();
-  document.getElementById('header-title').textContent =
-    state.view.type === 'month' ? monthName(state.view.month) :
-    (state.customers.find(c => c.id === state.view.id)?.name || 'Customer');
-}
-
-function renderSidebar() {
-  const months = getAllMonths();
-  const el = document.getElementById('sidebar-months');
-  el.innerHTML = months.map(m => {
-    const total = getMonthTotal(m);
-    const active = state.view.type === 'month' && state.view.month === m && state.viewMode === 'app' ? 'active' : '';
-    return `<div class="month-item ${active}" data-month="${m}">
-      <span class="m-name">${monthName(m)}</span>
-      <span class="m-total">${money(total)}</span>
-    </div>`;
-  }).join('');
-  el.querySelectorAll('.month-item').forEach(item => {
-    item.onclick = () => { goMonth(item.dataset.month); closeSidebar(); };
-  });
-  document.getElementById('all-total').textContent = money(getAllTimeTotal());
-
-  const ub = document.getElementById('user-box');
-  if (currentUser) {
-    let expiry = 'No expiry';
-    if (currentUser.expiresAt) expiry = formatRemaining(currentUser.expiresAt - Date.now());
-    ub.innerHTML = `<strong>${escapeHtml(currentUser.name)}</strong><br>@${escapeHtml(currentUser.username)} · ${expiry}`;
-    if (currentUser.role === 'admin') {
-      document.getElementById('admin-link').style.display = 'flex';
-      document.getElementById('admin-section-title').style.display = 'block';
-      document.getElementById('admin-badge').style.display = 'inline-block';
-    }
-  }
-}
-
-function renderMonth() {
-  const m = state.view.month;
-  const total = getMonthTotal(m);
-  app.innerHTML = `
-    <div class="month-summary">
-      <div class="ms-label">Month Total</div>
-      <div class="ms-month">${monthName(m)}</div>
-      <div class="ms-total">${money(total)}</div>
-    </div>
-    <div class="search-box">
-      <input type="text" id="search" placeholder="🔍 Search customer name" autocomplete="off">
-    </div>
-    <div id="cust-list"></div>
-  `;
-  const searchEl = document.getElementById('search');
-  searchEl.value = searchQuery;
-  searchEl.oninput = (e) => { searchQuery = e.target.value; updateCustList(); };
-  updateCustList();
-}
-
-function updateCustList() {
-  const m = state.view.month;
-  const list = getMonthCustomers(m);
-  const q = searchQuery.trim().toLowerCase();
-  const filtered = q ? list.filter(x => x.customer.name.toLowerCase().includes(q)) : list;
-  const el = document.getElementById('cust-list');
-  if (!el) return;
-  if (filtered.length === 0) {
-    el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><div>${list.length===0 ? 'No customers this month yet' : 'No matches found'}</div></div>`;
-    return;
-  }
-  el.innerHTML = filtered.map(x => `
-    <div class="customer-card" data-id="${escapeAttr(x.customer.id)}">
-      <div class="cc-left">
-        <div class="cc-name">${escapeHtml(x.customer.name)}</div>
-        <div class="cc-meta">${x.entries.length} ${x.entries.length===1?'entry':'entries'} this month</div>
-      </div>
-      <div class="cc-right">
-        <div class="cc-amount">${money(x.total)}</div>
-        <div class="cc-arrow">›</div>
-      </div>
-    </div>
-  `).join('');
-  el.querySelectorAll('.customer-card').forEach(card => {
-    card.onclick = () => goCustomer(card.dataset.id, m);
-  });
-}
-
-function renderCustomer() {
-  const c = state.customers.find(x => x.id === state.view.id);
-  if (!c) { goMonth(state.view.fromMonth || currentMonthKey()); return; }
-  const allTotal = c.entries.reduce((s,e) => s + e.amount, 0);
-  const byMonth = {};
-  c.entries.forEach(e => {
-    const mk = monthOf(e.date);
-    if (!byMonth[mk]) byMonth[mk] = [];
-    byMonth[mk].push(e);
-  });
-  const months = Object.keys(byMonth).sort().reverse();
-
-  app.innerHTML = `
-    <button class="back-btn" id="back">← Back</button>
-    <div class="detail-header">
-      <div class="dh-name">${escapeHtml(c.name)}</div>
-      <div class="dh-total-label">Total Rent — All Time</div>
-      <div class="dh-total">${money(allTotal)}</div>
-      <div class="dh-meta">${c.entries.length} ${c.entries.length===1?'entry':'entries'} recorded</div>
-    </div>
-    ${months.length === 0 ? `<div class="empty-state"><div class="es-icon">📋</div><div>No entries yet</div></div>`
-      : months.map(mk => {
-          const entries = byMonth[mk].slice().sort((a,b) => b.date.localeCompare(a.date));
-          const mt = entries.reduce((s,e) => s + e.amount, 0);
-          return `
-            <div class="month-group">
-              <div class="month-group-title"><span>${monthName(mk)}</span><span>${money(mt)}</span></div>
-              ${entries.map(e => `
-                <div class="entry-item">
-                  <div class="ei-left">
-                    <div class="ei-item">${escapeHtml(e.item || 'Rent')}</div>
-                    <div class="ei-date">${formatDate(e.date)}</div>
-                  </div>
-                  <div class="ei-amount">${money(e.amount)}</div>
-                  <button class="ei-del" data-eid="${e.id}" title="Delete">✕</button>
-                </div>
-              `).join('')}
-            </div>
-          `;
-        }).join('')}
-  `;
-  document.getElementById('back').onclick = () => goMonth(state.view.fromMonth || currentMonthKey());
-  app.querySelectorAll('.ei-del').forEach(btn => {
-    btn.onclick = (ev) => { ev.stopPropagation(); deleteEntry(c.id, btn.dataset.eid); };
-  });
-}
-
-// ============================================================
-// CLOUD PAGE
-// ============================================================
-function renderCloud() {
-  document.getElementById('header-title').textContent = 'Cloud Storage';
-  renderSidebar();
-
-  const customersCount = state.customers.length;
-  const entriesCount = state.customers.reduce((s,c)=>s+c.entries.length,0);
-  const itemsCount = state.items.length;
-  const total = getAllTimeTotal();
-
-  app.innerHTML = `
-    <button class="back-btn" id="back-cloud">← Back</button>
-
-    <div class="cloud-card">
-      <div class="cloud-big-status">
-        <div class="cbs-icon" id="cloud-big-icon">${cloudStatus === 'online' ? '☁️' : cloudStatus === 'syncing' ? '🔄' : '📴'}</div>
-        <div class="cbs-text" id="cloud-big-text">${cloudStatus === 'online' ? 'Cloud Connected' : cloudStatus === 'syncing' ? 'Syncing…' : 'Offline'}</div>
-        <div class="cbs-sub" id="cloud-big-sub">
-          ${cloudStatus === 'online'
-            ? `Last upload: ${timeAgo(lastSyncTime)}`
-            : cloudStatus === 'syncing'
-              ? 'Please wait…'
-              : 'Your data is safe on this phone. It will upload when internet returns.'}
-        </div>
-      </div>
-    </div>
-
-    <div class="cloud-card">
-      <h3 style="margin-bottom:12px;">📊 Your Cloud Data</h3>
-      <div class="cloud-status-row">
-        <span class="cs-label">Total Customers</span>
-        <span class="cs-value">${customersCount}</span>
-      </div>
-      <div class="cloud-status-row">
-        <span class="cs-label">Total Entries</span>
-        <span class="cs-value">${entriesCount}</span>
-      </div>
-      <div class="cloud-status-row">
-        <span class="cs-label">Items in List</span>
-        <span class="cs-value">${itemsCount}</span>
-      </div>
-      <div class="cloud-status-row">
-        <span class="cs-label">Total Rent Recorded</span>
-        <span class="cs-value" style="color:var(--green);">${money(total)}</span>
-      </div>
-      <div class="cloud-status-row">
-        <span class="cs-label">Sync Status</span>
-        <span class="cs-value">
-          <span class="sync-badge ${cloudStatus === 'online' ? 'sync-online' : cloudStatus === 'syncing' ? 'sync-syncing' : 'sync-offline'}">
-            ${cloudStatus === 'online' ? 'Synced' : cloudStatus === 'syncing' ? 'Syncing' : 'Offline'}
-          </span>
-        </span>
-      </div>
-    </div>
-
-    <div class="cloud-card">
-      <h3 style="margin-bottom:12px;">🔧 Actions</h3>
-      <div class="cloud-actions">
-        <button class="cloud-action-btn upload" id="cloud-upload-btn">
-          ☁️ Upload Now (Push to Cloud)
-        </button>
-        <button class="cloud-action-btn download" id="cloud-download-btn">
-          ⬇️ Download from Cloud
-        </button>
-      </div>
-      <p style="font-size:0.78rem;color:var(--muted);margin-top:14px;line-height:1.5;">
-        <strong>Auto-sync:</strong> Every entry you save uploads to cloud automatically.<br>
-        <strong>Upload Now:</strong> Force a full upload of all your data right now.<br>
-        <strong>Download:</strong> Pull the latest data from cloud (use if you logged in on a new phone and old data is missing).
-      </p>
-    </div>
-  `;
-
-  document.getElementById('back-cloud').onclick = () => goMonth(currentMonthKey());
-  document.getElementById('cloud-upload-btn').onclick = () => syncUp(true);
-  document.getElementById('cloud-download-btn').onclick = () => {
-    if (!confirm('This will replace your local data with the latest from cloud. Continue?')) return;
-    syncDown(true);
-  };
-}
-
-// ============================================================
-// ITEMS PAGE
-// ============================================================
-function renderItems() {
-  document.getElementById('header-title').textContent = 'Items & Prices';
-  renderSidebar();
-
-  const items = state.items || [];
-  app.innerHTML = `
-    <button class="back-btn" id="back-items">← Back</button>
-    <div class="admin-card" style="margin-bottom:16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h3 style="margin:0;">📦 My Items</h3>
-        <button class="tiny-btn primary" id="add-item-btn">＋ Add Item</button>
-      </div>
-      <p style="font-size:0.82rem;color:var(--muted);">
-        These items show up as quick buttons when you add a new rent entry.
-      </p>
-    </div>
-    <div id="items-list">
-      ${items.length === 0
-        ? `<div class="empty-state"><div class="es-icon">📦</div><div>No items yet. Tap "Add Item".</div></div>`
-        : items.map(it => `
-          <div class="item-row">
-            <div class="ir-left">
-              <div class="ir-name">${escapeHtml(it.name)}</div>
-              ${it.price ? `<div class="ir-price">Default: ${money(it.price)}</div>` : `<div class="ir-price" style="color:var(--muted);">No default price</div>`}
-            </div>
-            <div class="ir-actions">
-              <button class="tiny-btn" data-edit="${it.id}">Edit</button>
-              <button class="tiny-btn danger" data-del="${it.id}">Delete</button>
-            </div>
-          </div>
-        `).join('')}
-    </div>
-  `;
-
-  document.getElementById('back-items').onclick = () => goMonth(currentMonthKey());
-  document.getElementById('add-item-btn').onclick = () => openItemModal();
-  app.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openItemModal(b.dataset.edit));
-  app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteItem(b.dataset.del));
-}
-
-function openItemModal(id) {
-  const modal = document.getElementById('item-modal');
-  if (id) {
-    const it = state.items.find(x => x.id === id);
-    if (!it) return;
-    document.getElementById('item-modal-title').textContent = 'Edit Item';
-    document.getElementById('item-edit-id').value = id;
-    document.getElementById('item-name').value = it.name;
-    document.getElementById('item-price').value = it.price || '';
-  } else {
-    document.getElementById('item-modal-title').textContent = 'Add Item';
-    document.getElementById('item-edit-id').value = '';
-    document.getElementById('item-name').value = '';
-    document.getElementById('item-price').value = '';
-  }
-  modal.classList.add('open');
-  setTimeout(() => document.getElementById('item-name').focus(), 300);
-}
-function closeItemModal() { document.getElementById('item-modal').classList.remove('open'); }
-
-function saveItem() {
-  const id = document.getElementById('item-edit-id').value;
-  const name = document.getElementById('item-name').value.trim();
-  const price = parseFloat(document.getElementById('item-price').value) || 0;
-
-  if (!name) return toast('Enter item name');
-
-  if (id) {
-    const it = state.items.find(x => x.id === id);
-    if (it) { it.name = name; it.price = price; }
-  } else {
-    state.items.push({ id: uid(), name, price });
-  }
-  save();
-  closeItemModal();
-  toast('Item saved ✓');
-  if (state.viewMode === 'items') renderItems();
-}
-
-function deleteItem(id) {
-  if (!confirm('Delete this item?')) return;
-  state.items = state.items.filter(x => x.id !== id);
-  save();
-  toast('Item deleted');
-  renderItems();
-}
-
-// ============================================================
-// ADMIN PANEL
-// ============================================================
-function renderAdmin() {
-  document.getElementById('header-title').textContent = 'Admin Panel';
-  renderSidebar();
-  const accounts = getAccounts().filter(a => a.role !== 'admin');
-  const active = accounts.filter(a => !a.disabled && !isExpired(a)).length;
-  const expired = accounts.filter(a => !a.disabled && isExpired(a)).length;
-  const disabled = accounts.filter(a => a.disabled).length;
-
-  app.innerHTML = `
-    <div class="admin-panel">
-      <div class="admin-card">
-        <h3>📊 Overview</h3>
-        <div class="stat-grid">
-          <div class="stat-box"><div class="sb-label">Total Users</div><div class="sb-value">${accounts.length}</div></div>
-          <div class="stat-box"><div class="sb-label">Active</div><div class="sb-value">${active}</div></div>
-          <div class="stat-box"><div class="sb-label">Expired</div><div class="sb-value">${expired}</div></div>
-          <div class="stat-box"><div class="sb-label">Disabled</div><div class="sb-value">${disabled}</div></div>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h3 style="margin:0;">👥 Users</h3>
-          <button class="tiny-btn primary" id="new-user-btn">＋ New User</button>
-        </div>
-        ${accounts.length === 0
-          ? `<div class="empty-state" style="padding:24px;"><div>No users yet. Tap "New User".</div></div>`
-          : accounts.map(u => {
-              const expired = isExpired(u);
-              const status = u.disabled ? 'disabled' : (expired ? 'expired' : 'active');
-              const statusClass = status === 'active' ? 'status-active' : status === 'expired' ? 'status-expired' : 'status-disabled';
-              const remaining = u.expiresAt ? formatRemaining(u.expiresAt - Date.now()) : 'No expiry';
-              const expText = u.expiresAt ? new Date(u.expiresAt).toLocaleString() : '—';
-              return `
-                <div class="user-row">
-                  <div class="ur-left">
-                    <div class="ur-name">${escapeHtml(u.name)} <span class="status-pill ${statusClass}">${status}</span></div>
-                    <div class="ur-meta">@${escapeHtml(u.username)} · pw: <span class="pw-reveal">${escapeHtml(u.password)}</span></div>
-                    <div class="ur-meta">⏱ ${remaining} · ends ${expText}</div>
-                  </div>
-                  <div class="ur-actions">
-                    <button class="tiny-btn primary" data-action="extend" data-id="${u.id}">⏱ Extend</button>
-                    ${u.disabled
-                      ? `<button class="tiny-btn" data-action="enable" data-id="${u.id}">Enable</button>`
-                      : `<button class="tiny-btn danger" data-action="disable" data-id="${u.id}">Disable</button>`}
-                    <button class="tiny-btn danger" data-action="delete" data-id="${u.id}">Delete</button>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-      </div>
-
-      <div class="admin-card">
-        <h3>🔑 Change Admin Password</h3>
-        <div class="form-group"><label>New Password</label>
-          <input type="text" id="new-admin-pass" placeholder="Enter new password">
-        </div>
-        <button class="tiny-btn primary" id="save-admin-pass">Update Password</button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('new-user-btn').onclick = openUserModal;
-  app.querySelectorAll('[data-action]').forEach(btn => {
-    btn.onclick = () => handleUserAction(btn.dataset.action, btn.dataset.id);
-  });
-  document.getElementById('save-admin-pass').onclick = () => {
-    const v = document.getElementById('new-admin-pass').value.trim();
-    if (v.length < 4) return toast('Password must be 4+ characters');
-    const list = [...getAccounts()];
-    const a = list.find(x => x.role === 'admin');
-    if (a) { a.password = v; setAccounts(list); toast('Admin password updated ✓'); }
-  };
-}
-
-function handleUserAction(action, id) {
-  const list = [...getAccounts()];
-  const u = list.find(x => x.id === id);
-  if (!u) return;
-  if (action === 'disable') { u.disabled = true; setAccounts(list); toast('User disabled'); renderAdmin(); return; }
-  if (action === 'enable') { u.disabled = false; setAccounts(list); toast('User enabled'); renderAdmin(); return; }
-  if (action === 'extend') { openExtendModal(id); return; }
-  if (action === 'delete') {
-    if (!confirm(`Delete ${u.name}? Their data on ALL devices will be removed too.`)) return;
-    if (FB && FB.db) FB.set(FB.ref(FB.db, 'shops/' + u.id), null);
-    localStorage.removeItem(DATA_PREFIX + u.id);
-    const idx = list.findIndex(x => x.id === id);
-    list.splice(idx, 1);
-    setAccounts(list);
-    toast('User deleted');
-    renderAdmin();
-  }
-}
-
-function openExtendModal(id) {
-  const u = getAccounts().find(x => x.id === id);
-  if (!u) return;
-  const currentEnd = u.expiresAt && new Date(u.expiresAt) > new Date()
-    ? new Date(u.expiresAt).toLocaleString()
-    : '(already expired)';
-  document.getElementById('extend-username').textContent = u.name;
-  document.getElementById('extend-current').textContent = currentEnd;
-  setDur('ex', 0, 1, 0, 0);
-  document.getElementById('extend-id').value = id;
-  document.getElementById('extend-modal').classList.add('open');
-}
-
-function confirmExtend() {
-  const id = document.getElementById('extend-id').value;
-  const y = parseInt(document.getElementById('ex-years').value) || 0;
-  const mo = parseInt(document.getElementById('ex-months').value) || 0;
-  const d = parseInt(document.getElementById('ex-days').value) || 0;
-  const h = parseInt(document.getElementById('ex-hours').value) || 0;
-
-  const ms = durationToMs({ y, mo, d, h });
-  if (ms <= 0) return toast('Pick a duration greater than 0');
-
-  const list = [...getAccounts()];
-  const u = list.find(x => x.id === id);
-  if (!u) return;
-  const base = (u.expiresAt && u.expiresAt > Date.now()) ? u.expiresAt : Date.now();
-  u.expiresAt = base + ms;
-  setAccounts(list);
-  toast(`Extended by ${y}y ${mo}mo ${d}d ${h}h`);
-  document.getElementById('extend-modal').classList.remove('open');
-  renderAdmin();
-}
-
-// ============================================================
-// NAV
-// ============================================================
-function goMonth(m) { state.viewMode = 'app'; state.view = { type: 'month', month: m }; searchQuery = ''; render(); window.scrollTo(0,0); }
-function goCustomer(id, fromMonth) { state.viewMode = 'app'; state.view = { type: 'customer', id, fromMonth }; render(); window.scrollTo(0,0); }
-function goAdmin() { state.viewMode = 'admin'; render(); closeSidebar(); window.scrollTo(0,0); }
-function goItems() { state.viewMode = 'items'; render(); closeSidebar(); window.scrollTo(0,0); }
-function goCloud() { state.viewMode = 'cloud'; render(); closeSidebar(); window.scrollTo(0,0); }
-
-// ============================================================
-// CRUD
-// ============================================================
-function deleteEntry(custId, entryId) {
-  if (!confirm('Delete this entry?')) return;
-  const c = state.customers.find(x => x.id === custId);
-  if (!c) return;
-  c.entries = c.entries.filter(e => e.id !== entryId);
-  save(); toast('Entry deleted'); render();
-}
-
-// ============================================================
-// ADD ENTRY MODAL
-// ============================================================
-function openModal() {
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-item').value = '';
-  document.getElementById('f-amount').value = '';
-  document.getElementById('f-date').value = todayISO();
-  selectedItem = '';
-
-  const dl = document.getElementById('customer-names');
-  dl.innerHTML = state.customers.map(c => `<option value="${escapeAttr(c.name)}">`).join('');
-
-  renderItemChips();
-
-  document.getElementById('add-modal').classList.add('open');
-  setTimeout(() => document.getElementById('f-name').focus(), 300);
-}
-
-function renderItemChips() {
-  const wrap = document.getElementById('item-chips');
-  const items = state.items || [];
-  if (items.length === 0) {
-    wrap.innerHTML = `<p style="font-size:0.82rem;color:var(--muted);">No items set. Go to <strong>📦 Items & Prices</strong> in the sidebar to add some.</p>`;
-    return;
-  }
-  wrap.innerHTML = items.map(it => `
-    <button type="button" class="item-chip ${selectedItem === it.name ? 'selected' : ''}" data-name="${escapeAttr(it.name)}" data-price="${it.price || 0}">
-      ${escapeHtml(it.name)}${it.price ? `<span class="chip-price">Rs.${it.price}</span>` : ''}
-    </button>
-  `).join('');
-  wrap.querySelectorAll('.item-chip').forEach(chip => {
-    chip.onclick = () => {
-      selectedItem = chip.dataset.name;
-      document.getElementById('f-item').value = selectedItem;
-      const price = parseFloat(chip.dataset.price) || 0;
-      if (price > 0) document.getElementById('f-amount').value = price;
-      renderItemChips();
-    };
-  });
-}
-
-function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
-
-function openUserModal() {
-  document.getElementById('u-name').value = '';
-  document.getElementById('u-user').value = '';
-  document.getElementById('u-pass').value = '';
-  setDur('cu', 0, 1, 0, 0);
-  document.getElementById('user-modal').classList.add('open');
-}
-function closeUserModal() { document.getElementById('user-modal').classList.remove('open'); }
-
-function createUser() {
-  const name = document.getElementById('u-name').value.trim();
-  const username = document.getElementById('u-user').value.trim().toLowerCase();
-  const password = document.getElementById('u-pass').value.trim();
-  const y = parseInt(document.getElementById('cu-years').value) || 0;
-  const mo = parseInt(document.getElementById('cu-months').value) || 0;
-  const d = parseInt(document.getElementById('cu-days').value) || 0;
-  const h = parseInt(document.getElementById('cu-hours').value) || 0;
-
-  if (!name) return toast('Enter shopkeeper name');
-  if (!username || username.length < 3) return toast('Username must be 3+ characters');
-  if (!/^[a-z0-9_]+$/.test(username)) return toast('Username: letters, numbers, _ only');
-  if (!password || password.length < 4) return toast('Password must be 4+ characters');
-
-  const ms = durationToMs({ y, mo, d, h });
-  if (ms <= 0) return toast('Set an access duration greater than 0');
-
-  const list = [...getAccounts()];
-  if (list.find(a => a.username === username)) return toast('Username already taken');
-
-  const newUser = {
-    id: genId(), name, username, password,
-    role: 'shopkeeper',
-    createdAt: Date.now(),
-    expiresAt: Date.now() + ms,
-    disabled: false
-  };
-  list.push(newUser);
-  setAccounts(list);
-  toast(`✓ Created. @${username} / ${password}`);
-  closeUserModal();
-  renderAdmin();
-}
-
-function saveEntry() {
-  const name = document.getElementById('f-name').value.trim();
-  const item = document.getElementById('f-item').value.trim() || selectedItem;
-  const amount = parseFloat(document.getElementById('f-amount').value);
-  const date = document.getElementById('f-date').value;
-
-  if (!name) return toast('Please enter customer name');
-  if (!date) return toast('Please select a date');
-  if (!amount || amount <= 0) return toast('Please enter a valid amount');
-
-  let cust = state.customers.find(c => c.name.toLowerCase() === name.toLowerCase());
-  if (!cust) { cust = { id: uid(), name, entries: [] }; state.customers.push(cust); }
-  cust.entries.push({ id: uid(), date, amount, item: item || 'Rent' });
-  save(); closeModal(); toast('Saved & uploading to cloud ✓');
-  goMonth(monthOf(date));
-}
-
-// ============================================================
-// SIDEBAR
-// ============================================================
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); }
-function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
-
-document.getElementById('menu-btn').onclick = openSidebar;
-overlay.onclick = closeSidebar;
-document.getElementById('side-add').onclick = () => { closeSidebar(); setTimeout(openModal, 250); };
-document.getElementById('fab').onclick = openModal;
-document.getElementById('items-link').onclick = goItems;
-document.getElementById('cloud-link').onclick = goCloud;
-document.getElementById('close-modal').onclick = closeModal;
-document.getElementById('cancel-btn').onclick = closeModal;
-document.getElementById('save-btn').onclick = saveEntry;
-document.getElementById('admin-link').onclick = goAdmin;
-document.getElementById('close-user-modal').onclick = closeUserModal;
-document.getElementById('cancel-user-btn').onclick = closeUserModal;
-document.getElementById('create-user-btn').onclick = createUser;
-document.getElementById('close-extend-modal').onclick = () => document.getElementById('extend-modal').classList.remove('open');
-document.getElementById('cancel-extend-btn').onclick = () => document.getElementById('extend-modal').classList.remove('open');
-document.getElementById('confirm-extend-btn').onclick = confirmExtend;
-document.getElementById('close-item-modal').onclick = closeItemModal;
-document.getElementById('cancel-item-btn').onclick = closeItemModal;
-document.getElementById('save-item-btn').onclick = saveItem;
-
-document.getElementById('logout-btn').onclick = () => {
-  if (!confirm('Sign out?')) return;
-  setSession(null);
-  location.reload();
+const WEAPONS = {
+  pistol:  { name: 'PISTOL',  damage: 18, fireRate: 0.28, bulletSpeed: 900, spread: 0.04, magSize: Infinity, bulletColor: '#ffd700', bulletSize: 4, sound: 'pistol',  range: 800 },
+  smg:     { name: 'SMG',     damage: 11, fireRate: 0.08, bulletSpeed: 850, spread: 0.13, magSize: 35,       bulletColor: '#5ac8fa', bulletSize: 3, sound: 'smg',     range: 600 },
+  rifle:   { name: 'RIFLE',   damage: 28, fireRate: 0.14, bulletSpeed: 1100,spread: 0.05, magSize: 30,       bulletColor: '#ff9500', bulletSize: 5, sound: 'rifle',   range: 1000 },
+  shotgun: { name: 'SHOTGUN', damage: 14, fireRate: 0.75, bulletSpeed: 750, spread: 0.35, magSize: 8,        bulletColor: '#ff3b30', bulletSize: 6, sound: 'shotgun', range: 400, pellets: 7 }
 };
 
 // ============================================================
-// TOAST
+// GAME STATE
 // ============================================================
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
+let game;
 
-// ============================================================
-// GATE
-// ============================================================
-function showGateMsg(msg, type) {
-  const el = document.getElementById('gate-msg');
-  el.textContent = msg;
-  el.className = 'gate-msg ' + (type || 'error');
-}
-function clearGateMsg() { document.getElementById('gate-msg').className = 'gate-msg'; }
-function hideGate() { document.getElementById('gate').classList.add('hidden'); document.getElementById('app-root').style.display = 'block'; }
-function showGate() { document.getElementById('gate').classList.remove('hidden'); document.getElementById('app-root').style.display = 'none'; }
-
-document.querySelectorAll('.gate-tab').forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    clearGateMsg();
-    const isLogin = tab.dataset.tab === 'login';
-    document.getElementById('tab-login').style.display = isLogin ? 'block' : 'none';
-    document.getElementById('tab-activate').style.display = isLogin ? 'none' : 'block';
-    document.getElementById('gate-tabs').style.display = 'flex';
-    document.getElementById('gate-subtitle').textContent = isLogin ? 'Sign in to continue' : 'Activate your account';
+function newGame() {
+  const WORLD = 2800;
+  game = {
+    state: 'playing',
+    world: { w: WORLD, h: WORLD },
+    camera: { x: 0, y: 0, shake: 0 },
+    player: null,
+    bots: [],
+    bullets: [],
+    particles: [],
+    damageNumbers: [],
+    loot: [],
+    obstacles: [],
+    killfeed: [],
+    startTime: performance.now(),
+    kills: 0,
+    zone: {
+      x: WORLD / 2,
+      y: WORLD / 2,
+      r: WORLD * 0.55,
+      targetX: WORLD / 2,
+      targetY: WORLD / 2,
+      targetR: WORLD * 0.55,
+      phase: 0,
+      timer: 30,
+      damage: 1
+    },
+    mouse: { x: W/2, y: H/2, down: false },
+    keys: {}
   };
+
+  // Spawn player
+  const playerStart = randomSpawn();
+  game.player = {
+    x: playerStart.x, y: playerStart.y,
+    angle: 0,
+    health: 100, maxHealth: 100,
+    speed: 260,
+    weapon: 'pistol',
+    ammo: Infinity,
+    magAmmo: Infinity,
+    reloading: 0,
+    lastShot: 0,
+    isPlayer: true,
+    alive: true,
+    radius: 16,
+    kills: 0,
+    muzzleFlash: 0,
+    recoil: 0
+  };
+
+  // Spawn bots
+  for (let i = 0; i < 14; i++) {
+    const spawn = randomSpawn(playerStart);
+    const weapons = ['pistol', 'smg', 'rifle', 'shotgun'];
+    const w = weapons[Math.floor(Math.random() * weapons.length)];
+    game.bots.push({
+      x: spawn.x, y: spawn.y,
+      angle: Math.random() * Math.PI * 2,
+      health: 100, maxHealth: 100,
+      speed: 160 + Math.random() * 60,
+      weapon: w,
+      ammo: WEAPONS[w].magSize,
+      magAmmo: WEAPONS[w].magSize,
+      reloading: 0,
+      lastShot: 0,
+      isPlayer: false,
+      alive: true,
+      radius: 16,
+      name: 'Bot ' + (i + 1),
+      kills: 0,
+      target: null,
+      thinkTimer: 0,
+      aimError: 0,
+      muzzleFlash: 0,
+      recoil: 0,
+      wanderDir: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Spawn obstacles (bushes/rocks)
+  for (let i = 0; i < 40; i++) {
+    game.obstacles.push({
+      x: Math.random() * WORLD,
+      y: Math.random() * WORLD,
+      r: 25 + Math.random() * 35,
+      type: Math.random() < 0.6 ? 'bush' : 'rock'
+    });
+  }
+
+  // Spawn loot
+  for (let i = 0; i < 20; i++) {
+    const spawn = randomSpawn(null);
+    game.loot.push({
+      x: spawn.x, y: spawn.y,
+      type: Math.random() < 0.7 ? 'weapon' : 'health',
+      weapon: ['smg', 'rifle', 'shotgun'][Math.floor(Math.random() * 3)],
+      pulse: 0
+    });
+  }
+}
+
+function randomSpawn(avoid) {
+  for (let tries = 0; tries < 30; tries++) {
+    const x = 200 + Math.random() * (game?.world.w - 400 || 2400);
+    const y = 200 + Math.random() * (game?.world.h - 400 || 2400);
+    if (!avoid || Math.hypot(x - avoid.x, y - avoid.y) > 400) return { x, y };
+  }
+  return { x: Math.random() * 2400 + 200, y: Math.random() * 2400 + 200 };
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (game) game.keys[k] = true;
+  if (k === 'r' && game && game.player) reload();
+  if (k === 'e' && game && game.player) tryPickup();
+});
+window.addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  if (game) game.keys[k] = false;
 });
 
-document.getElementById('login-btn').onclick = () => {
-  clearGateMsg();
-  const u = document.getElementById('login-user').value.trim().toLowerCase();
-  const p = document.getElementById('login-pass').value;
-  if (!u || !p) return showGateMsg('Enter username and password');
-  const acc = getAccounts().find(a => a.username === u && a.password === p);
-  if (!acc) return showGateMsg('Wrong username or password');
-  if (acc.disabled) return showGateMsg('This account has been disabled. Contact seller.');
-  if (isExpired(acc)) return showGateMsg('Your access has expired. Contact seller to renew.');
-  setSession({ id: acc.id });
-  startApp();
-};
+canvas.addEventListener('mousemove', e => {
+  if (game) { game.mouse.x = e.clientX; game.mouse.y = e.clientY; }
+});
+canvas.addEventListener('mousedown', e => {
+  initAudio();
+  if (game) game.mouse.down = true;
+});
+canvas.addEventListener('mouseup', () => {
+  if (game) game.mouse.down = false;
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-document.getElementById('activate-btn').onclick = () => {
-  clearGateMsg();
-  const code = document.getElementById('activate-code').value.trim().toUpperCase();
-  const username = document.getElementById('activate-user').value.trim().toLowerCase();
-  const password = document.getElementById('activate-pass').value.trim();
-  if (!code) return showGateMsg('Enter activation code');
-  if (!username || username.length < 3) return showGateMsg('Username must be 3+ characters');
-  if (!/^[a-z0-9_]+$/.test(username)) return showGateMsg('Username: letters, numbers, _ only');
-  if (!password || password.length < 4) return showGateMsg('Password must be 4+ characters');
+// Touch controls
+let touchMove = { x: 0, y: 0, active: false };
+let touchAim = { x: 0, y: 0, active: false };
 
-  const list = [...getAccounts()];
-  const pending = list.find(a => a.activationCode === code && !a.activated);
-  if (!pending) return showGateMsg('Invalid or already-used activation code');
-  if (list.find(a => a.username === username)) return showGateMsg('Username already taken');
+function setupTouchControls() {
+  const stickL = document.getElementById('stick-left');
+  const stickR = document.getElementById('stick-right');
+  const knobL = stickL.querySelector('.knob');
+  const knobR = stickR.querySelector('.knob');
+  const maxDist = 45;
 
-  pending.username = username;
-  pending.password = password;
-  pending.activated = true;
-  delete pending.activationCode;
-  setAccounts(list);
-  setSession({ id: pending.id });
-  showGateMsg('Account activated! Signing in…', 'success');
-  setTimeout(startApp, 700);
-};
+  let stickLId = null, stickRId = null;
+
+  function getStickPos(stick, touch, knob) {
+    const rect = stick.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let dx = touch.clientX - cx;
+    let dy = touch.clientY - cy;
+    const dist = Math.hypot(dx, dy);
+    if (dist > maxDist) { dx = dx / dist * maxDist; dy = dy / dist * maxDist; }
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    return { x: dx / maxDist, y: dy / maxDist };
+  }
+
+  document.addEventListener('touchstart', e => {
+    initAudio();
+    for (const t of e.changedTouches) {
+      const rectL = stickL.getBoundingClientRect();
+      const rectR = stickR.getBoundingClientRect();
+      if (t.clientX >= rectL.left && t.clientX <= rectL.right && t.clientY >= rectL.top && t.clientY <= rectL.bottom && stickLId === null) {
+        stickLId = t.identifier;
+        touchMove.active = true;
+      } else if (t.clientX >= rectR.left && t.clientX <= rectR.right && t.clientY >= rectR.top && t.clientY <= rectR.bottom && stickRId === null) {
+        stickRId = t.identifier;
+        touchAim.active = true;
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    for (const t of e.changedTouches) {
+      if (t.identifier === stickLId) {
+        const pos = getStickPos(stickL, t, knobL);
+        touchMove.x = pos.x; touchMove.y = pos.y;
+      } else if (t.identifier === stickRId) {
+        const pos = getStickPos(stickR, t, knobR);
+        touchAim.x = pos.x; touchAim.y = pos.y;
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    for (const t of e.changedTouches) {
+      if (t.identifier === stickLId) {
+        stickLId = null;
+        touchMove = { x: 0, y: 0, active: false };
+        knobL.style.transform = 'translate(-50%, -50%)';
+      } else if (t.identifier === stickRId) {
+        stickRId = null;
+        touchAim = { x: 0, y: 0, active: false };
+        knobR.style.transform = 'translate(-50%, -50%)';
+      }
+    }
+  }, { passive: true });
+}
+
+if (isTouch) {
+  document.getElementById('touch-controls').classList.add('active');
+  setupTouchControls();
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function shoot(entity) {
+  const w = WEAPONS[entity.weapon];
+  const now = performance.now() / 1000;
+  if (now - entity.lastShot < w.fireRate) return;
+  if (entity.magAmmo <= 0) {
+    if (entity.isPlayer) reload();
+    return;
+  }
+  entity.lastShot = now;
+  entity.magAmmo--;
+  entity.muzzleFlash = 0.08;
+  entity.recoil = 4;
+
+  const numBullets = w.pellets || 1;
+  for (let i = 0; i < numBullets; i++) {
+    const spreadAngle = (Math.random() - 0.5) * w.spread;
+    const angle = entity.angle + spreadAngle;
+    game.bullets.push({
+      x: entity.x + Math.cos(entity.angle) * 20,
+      y: entity.y + Math.sin(entity.angle) * 20,
+      vx: Math.cos(angle) * w.bulletSpeed,
+      vy: Math.sin(angle) * w.bulletSpeed,
+      damage: w.damage,
+      owner: entity,
+      color: w.bulletColor,
+      size: w.bulletSize,
+      life: w.range / w.bulletSpeed,
+      trail: []
+    });
+  }
+
+  playSound('shoot');
+}
+
+function reload() {
+  const p = game.player;
+  const w = WEAPONS[p.weapon];
+  if (p.magAmmo >= w.magSize || p.reloading > 0) return;
+  if (w.magSize === Infinity) return;
+  p.reloading = 1.5;
+  setTimeout(() => {
+    if (p.alive) {
+      p.magAmmo = w.magSize;
+      p.reloading = 0;
+    }
+  }, 1500);
+}
+
+function tryPickup() {
+  const p = game.player;
+  for (let i = game.loot.length - 1; i >= 0; i--) {
+    const l = game.loot[i];
+    if (Math.hypot(l.x - p.x, l.y - p.y) < 40) {
+      if (l.type === 'weapon') {
+        p.weapon = l.weapon;
+        p.magAmmo = WEAPONS[l.weapon].magSize;
+        p.reloading = 0;
+        addKillfeed(`Picked up ${WEAPONS[l.weapon].name}`, 'pickup');
+      } else {
+        p.health = Math.min(p.maxHealth, p.health + 40);
+        addKillfeed('+40 Health', 'health');
+      }
+      game.loot.splice(i, 1);
+      playSound('pickup');
+      updateHUD();
+      break;
+    }
+  }
+}
+
+function addKillfeed(text, type) {
+  const feed = document.getElementById('killfeed');
+  const msg = document.createElement('div');
+  msg.className = 'kill-msg';
+  if (type === 'pickup') msg.style.borderLeftColor = '#ff9500';
+  if (type === 'health') msg.style.borderLeftColor = '#34c759';
+  msg.textContent = text;
+  feed.appendChild(msg);
+  setTimeout(() => msg.remove(), 4000);
+}
+
+// ============================================================
+// UPDATE
+// ============================================================
+function update(dt) {
+  if (game.state !== 'playing') return;
+
+  const p = game.player;
+
+  // --- Player movement ---
+  if (p.alive) {
+    let mx = 0, my = 0;
+    if (game.keys['w'] || game.keys['arrowup']) my -= 1;
+    if (game.keys['s'] || game.keys['arrowdown']) my += 1;
+    if (game.keys['a'] || game.keys['arrowleft']) mx -= 1;
+    if (game.keys['d'] || game.keys['arrowright']) mx += 1;
+
+    if (touchMove.active) {
+      mx = touchMove.x;
+      my = touchMove.y;
+    }
+
+    const mdist = Math.hypot(mx, my);
+    if (mdist > 0) {
+      mx /= mdist; my /= mdist;
+      const speed = p.speed * dt;
+      const nx = p.x + mx * speed;
+      const ny = p.y + my * speed;
+      if (!collidesObstacle(nx, p.y, p.radius)) p.x = nx;
+      if (!collidesObstacle(p.x, ny, p.radius)) p.y = ny;
+    }
+
+    // Clamp to world
+    p.x = Math.max(20, Math.min(game.world.w - 20, p.x));
+    p.y = Math.max(20, Math.min(game.world.h - 20, p.y));
+
+    // Aim
+    if (touchAim.active && (touchAim.x !== 0 || touchAim.y !== 0)) {
+      p.angle = Math.atan2(touchAim.y, touchAim.x);
+      shoot(p); // auto-fire
+    } else if (!isTouch) {
+      const wm = screenToWorld(game.mouse.x, game.mouse.y);
+      p.angle = Math.atan2(wm.y - p.y, wm.x - p.x);
+      if (game.mouse.down) shoot(p);
+    }
+
+    // Recoil decay
+    if (p.recoil > 0) p.recoil = Math.max(0, p.recoil - dt * 40);
+    if (p.muzzleFlash > 0) p.muzzleFlash -= dt;
+  }
+
+  // --- Bots AI ---
+  for (const bot of game.bots) {
+    if (!bot.alive) continue;
+
+    bot.thinkTimer -= dt;
+    if (bot.thinkTimer <= 0) {
+      bot.thinkTimer = 0.15 + Math.random() * 0.2;
+      // Find nearest enemy
+      let nearest = null, nearestDist = 600;
+      const enemies = [p, ...game.bots].filter(e => e && e.alive && e !== bot);
+      for (const e of enemies) {
+        const d = Math.hypot(e.x - bot.x, e.y - bot.y);
+        if (d < nearestDist) { nearestDist = d; nearest = e; }
+      }
+      bot.target = nearest;
+    }
+
+    if (bot.target && bot.target.alive) {
+      const dx = bot.target.x - bot.x;
+      const dy = bot.target.y - bot.y;
+      const dist = Math.hypot(dx, dy);
+      const w = WEAPONS[bot.weapon];
+
+      // Aim with error
+      bot.aimError = (bot.aimError * 0.9) + ((Math.random() - 0.5) * 0.1);
+      const targetAngle = Math.atan2(dy, dx);
+      const angleDiff = ((targetAngle - bot.angle + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+      bot.angle += angleDiff * Math.min(1, dt * 8) + bot.aimError * dt * 3;
+
+      // Move toward target if far, strafe if close
+      let moveDir = 0;
+      if (dist > 250) {
+        const nx = bot.x + (dx / dist) * bot.speed * dt;
+        const ny = bot.y + (dy / dist) * bot.speed * dt;
+        if (!collidesObstacle(nx, bot.y, bot.radius)) bot.x = nx;
+        if (!collidesObstacle(bot.x, ny, bot.radius)) bot.y = ny;
+      } else if (dist < 150) {
+        // Back off
+        const nx = bot.x - (dx / dist) * bot.speed * 0.5 * dt;
+        const ny = bot.y - (dy / dist) * bot.speed * 0.5 * dt;
+        if (!collidesObstacle(nx, bot.y, bot.radius)) bot.x = nx;
+        if (!collidesObstacle(bot.x, ny, bot.radius)) bot.y = ny;
+      }
+
+      // Shoot if in range
+      if (dist < w.range && dist > 40) shoot(bot);
+
+      // Reload if empty
+      if (bot.magAmmo <= 0 && bot.reloading <= 0 && w.magSize !== Infinity) {
+        bot.reloading = 1.8;
+        setTimeout(() => {
+          if (bot.alive) { bot.magAmmo = w.magSize; bot.reloading = 0; }
+        }, 1800);
+      }
+    } else {
+      // Wander
+      bot.wanderDir += (Math.random() - 0.5) * dt * 2;
+      const nx = bot.x + Math.cos(bot.wanderDir) * bot.speed * 0.4 * dt;
+      const ny = bot.y + Math.sin(bot.wanderDir) * bot.speed * 0.4 * dt;
+      if (!collidesObstacle(nx, bot.y, bot.radius)) bot.x = nx;
+      if (!collidesObstacle(bot.x, ny, bot.radius)) bot.y = ny;
+      bot.angle = bot.wanderDir;
+    }
+
+    // Zone damage
+    const zoneDist = Math.hypot(bot.x - game.zone.x, bot.y - game.zone.y);
+    if (zoneDist > game.zone.r) {
+      bot.health -= game.zone.damage * dt * 8;
+      if (bot.health <= 0) killEntity(bot, null);
+    }
+
+    if (bot.recoil > 0) bot.recoil = Math.max(0, bot.recoil - dt * 40);
+    if (bot.muzzleFlash > 0) bot.muzzleFlash -= dt;
+
+    // Clamp
+    bot.x = Math.max(20, Math.min(game.world.w - 20, bot.x));
+    bot.y = Math.max(20, Math.min(game.world.h - 20, bot.y));
+  }
+
+  // --- Bullets ---
+  for (let i = game.bullets.length - 1; i >= 0; i--) {
+    const b = game.bullets[i];
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    b.life -= dt;
+    b.trail.push({ x: b.x, y: b.y });
+    if (b.trail.length > 4) b.trail.shift();
+
+    // Check collisions
+    let hit = false;
+    const targets = [p, ...game.bots];
+    for (const t of targets) {
+      if (!t || !t.alive || t === b.owner) continue;
+      if (Math.hypot(t.x - b.x, t.y - b.y) < t.radius + b.size) {
+        t.health -= b.damage;
+        playSound('hit');
+        // Damage particles
+        for (let k = 0; k < 8; k++) {
+          game.particles.push({
+            x: b.x, y: b.y,
+            vx: (Math.random() - 0.5) * 300,
+            vy: (Math.random() - 0.5) * 300,
+            life: 0.4, maxLife: 0.4,
+            color: '#ff3b30',
+            size: 3 + Math.random() * 3
+          });
+        }
+        // Damage number
+        game.damageNumbers.push({
+          x: t.x, y: t.y - 20,
+          text: '-' + Math.round(b.damage),
+          life: 0.8,
+          color: t.isPlayer ? '#ff3b30' : '#fff'
+        });
+        if (t.isPlayer) {
+          game.camera.shake = 8;
+          playSound('damage');
+          updateHUD();
+        }
+        if (t.health <= 0) {
+          killEntity(t, b.owner);
+        }
+        hit = true;
+        break;
+      }
+    }
+
+    if (hit || b.life <= 0 || b.x < 0 || b.x > game.world.w || b.y < 0 || b.y > game.world.h) {
+      game.bullets.splice(i, 1);
+    }
+  }
+
+  // --- Player zone damage ---
+  if (p.alive) {
+    const zoneDist = Math.hypot(p.x - game.zone.x, p.y - game.zone.y);
+    if (zoneDist > game.zone.r) {
+      p.health -= game.zone.damage * dt * 8;
+      updateHUD();
+      if (p.health <= 0) killEntity(p, null);
+    }
+  }
+
+  // --- Zone shrinking ---
+  const zone = game.zone;
+  zone.timer -= dt;
+
+  if (zone.timer <= 0 && zone.phase < 5) {
+    zone.phase++;
+    zone.timer = 25;
+    const newR = zone.r * 0.6;
+    // Move center randomly within current zone
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * (zone.r - newR) * 0.7;
+    zone.targetX = zone.x + Math.cos(angle) * dist;
+    zone.targetY = zone.y + Math.sin(angle) * dist;
+    zone.targetR = newR;
+    zone.damage = 1 + zone.phase * 0.5;
+  }
+
+  // Smooth zone transition (over 10s)
+  if (Math.abs(zone.r - zone.targetR) > 1) {
+    zone.r += (zone.targetR - zone.r) * dt * 0.3;
+    zone.x += (zone.targetX - zone.x) * dt * 0.3;
+    zone.y += (zone.targetY - zone.y) * dt * 0.3;
+  }
+
+  // --- Particles ---
+  for (let i = game.particles.length - 1; i >= 0; i--) {
+    const pt = game.particles[i];
+    pt.x += pt.vx * dt;
+    pt.y += pt.vy * dt;
+    pt.vx *= 0.95;
+    pt.vy *= 0.95;
+    pt.life -= dt;
+    if (pt.life <= 0) game.particles.splice(i, 1);
+  }
+
+  // --- Damage numbers ---
+  for (let i = game.damageNumbers.length - 1; i >= 0; i--) {
+    const dn = game.damageNumbers[i];
+    dn.y -= 40 * dt;
+    dn.life -= dt;
+    if (dn.life <= 0) game.damageNumbers.splice(i, 1);
+  }
+
+  // --- Camera ---
+  const targetX = p.x - W / 2 + (p.recoil * Math.cos(p.angle));
+  const targetY = p.y - H / 2 + (p.recoil * Math.sin(p.angle));
+  game.camera.x += (targetX - game.camera.x) * Math.min(1, dt * 8);
+  game.camera.y += (targetY - game.camera.y) * Math.min(1, dt * 8);
+  game.camera.x = Math.max(0, Math.min(game.camera.x, game.world.w - W));
+  game.camera.y = Math.max(0, Math.min(game.camera.y, game.world.h - H));
+  if (game.camera.shake > 0) game.camera.shake = Math.max(0, game.camera.shake - dt * 30);
+
+  // --- Loot pulse ---
+  for (const l of game.loot) l.pulse += dt * 3;
+
+  // --- Check win/lose ---
+  if (!p.alive && game.state === 'playing') {
+    game.state = 'dead';
+    setTimeout(showGameOver, 800);
+  } else if (game.bots.filter(b => b.alive).length === 0 && p.alive) {
+    game.state = 'won';
+    setTimeout(showGameOver, 800);
+  }
+
+  updateHUD();
+}
+
+function collidesObstacle(x, y, r) {
+  for (const o of game.obstacles) {
+    if (Math.hypot(o.x - x, o.y - y) < o.r + r * 0.6) return true;
+  }
+  return false;
+}
+
+function killEntity(entity, killer) {
+  entity.alive = false;
+  entity.health = 0;
+
+  // Blood particles
+  for (let i = 0; i < 20; i++) {
+    game.particles.push({
+      x: entity.x, y: entity.y,
+      vx: (Math.random() - 0.5) * 400,
+      vy: (Math.random() - 0.5) * 400,
+      life: 0.8, maxLife: 0.8,
+      color: '#8b0000',
+      size: 3 + Math.random() * 4
+    });
+  }
+
+  if (entity.isPlayer) {
+    playSound('damage');
+    return;
+  }
+
+  playSound('kill');
+
+  const killerName = killer === game.player ? 'YOU' : (killer?.name || 'Zone');
+  addKillfeed(`${killerName} eliminated ${entity.name}`, 'kill');
+
+  if (killer === game.player) {
+    game.player.kills++;
+    // Drop loot
+    if (Math.random() < 0.7) {
+      game.loot.push({
+        x: entity.x, y: entity.y,
+        type: 'weapon',
+        weapon: entity.weapon,
+        pulse: 0
+      });
+    }
+  }
+}
+
+function screenToWorld(sx, sy) {
+  return { x: sx + game.camera.x, y: sy + game.camera.y };
+}
+
+// ============================================================
+// HUD
+// ============================================================
+function updateHUD() {
+  const p = game.player;
+  if (!p) return;
+
+  const hpPct = Math.max(0, p.health / p.maxHealth * 100);
+  const fill = document.getElementById('health-fill');
+  fill.style.width = hpPct + '%';
+  fill.classList.toggle('low', hpPct < 40);
+  document.getElementById('health-text').textContent = Math.round(Math.max(0, p.health)) + ' / ' + p.maxHealth;
+
+  const w = WEAPONS[p.weapon];
+  document.getElementById('weapon-name').textContent = w.name;
+  document.getElementById('ammo-current').textContent = w.magSize === Infinity ? '∞' : p.magAmmo;
+  document.getElementById('ammo-max').textContent = w.magSize === Infinity ? '∞' : w.magSize;
+  document.getElementById('reloading').style.display = p.reloading > 0 ? 'block' : 'none';
+
+  const alive = 1 + game.bots.filter(b => b.alive).length;
+  document.getElementById('alive-num').textContent = alive;
+  document.getElementById('kill-num').textContent = p.kills;
+
+  const zone = game.zone;
+  document.getElementById('zone-info').textContent = zone.phase >= 5 ? 'FINAL ZONE' : `ZONE IN ${Math.ceil(zone.timer)}s`;
+}
+
+// ============================================================
+// DRAW
+// ============================================================
+function draw() {
+  if (!game) {
+    ctx.fillStyle = '#0a0e14';
+    ctx.fillRect(0, 0, W, H);
+    return;
+  }
+
+  const cam = game.camera;
+  const shakeX = cam.shake > 0 ? (Math.random() - 0.5) * cam.shake : 0;
+  const shakeY = cam.shake > 0 ? (Math.random() - 0.5) * cam.shake : 0;
+
+  ctx.save();
+  ctx.translate(-cam.x + shakeX, -cam.y + shakeY);
+
+  // --- Ground ---
+  ctx.fillStyle = '#1a2b1f';
+  ctx.fillRect(0, 0, game.world.w, game.world.h);
+
+  // Grid pattern for depth
+  const gridSize = 100;
+  const startX = Math.floor(cam.x / gridSize) * gridSize;
+  const startY = Math.floor(cam.y / gridSize) * gridSize;
+  ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+  ctx.lineWidth = 1;
+  for (let x = startX; x < cam.x + W + gridSize; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, cam.y);
+    ctx.lineTo(x, cam.y + H);
+    ctx.stroke();
+  }
+  for (let y = startY; y < cam.y + H + gridSize; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(cam.x, y);
+    ctx.lineTo(cam.x + W, y);
+    ctx.stroke();
+  }
+
+  // --- Zone (outside is red-tinted) ---
+  const zone = game.zone;
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,30,30,0.12)';
+  ctx.beginPath();
+  ctx.rect(cam.x, cam.y, W, H);
+  ctx.arc(zone.x, zone.y, zone.r, 0, Math.PI * 2);
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  // Zone border
+  ctx.strokeStyle = 'rgba(90,200,250,0.9)';
+  ctx.lineWidth = 4;
+  ctx.shadowColor = '#5ac8fa';
+  ctx.shadowBlur = 20;
+  ctx.beginPath();
+  ctx.arc(zone.x, zone.y, zone.r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Next zone preview
+  if (Math.abs(zone.r - zone.targetR) > 1) {
+    ctx.strokeStyle = 'rgba(90,200,250,0.4)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 10]);
+    ctx.beginPath();
+    ctx.arc(zone.targetX, zone.targetY, zone.targetR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // --- Obstacles ---
+  for (const o of game.obstacles) {
+    if (o.x < cam.x - 100 || o.x > cam.x + W + 100 || o.y < cam.y - 100 || o.y > cam.y + H + 100) continue;
+    if (o.type === 'bush') {
+      ctx.fillStyle = '#1f3a26';
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#2a4d32';
+      ctx.beginPath();
+      ctx.arc(o.x - o.r * 0.3, o.y - o.r * 0.3, o.r * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = '#3a3a3f';
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#4a4a50';
+      ctx.beginPath();
+      ctx.arc(o.x - o.r * 0.2, o.y - o.r * 0.2, o.r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // --- Loot ---
+  for (const l of game.loot) {
+    const bob = Math.sin(l.pulse) * 3;
+    ctx.save();
+    ctx.translate(l.x, l.y + bob);
+    // Glow
+    ctx.shadowColor = l.type === 'weapon' ? '#ff9500' : '#34c759';
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = l.type === 'weapon' ? '#ff9500' : '#34c759';
+    ctx.beginPath();
+    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // Icon
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(l.type === 'weapon' ? '🔫' : '❤', 0, 0);
+    ctx.restore();
+  }
+
+  // --- Bullets ---
+  for (const b of game.bullets) {
+    // Trail
+    for (let i = 0; i < b.trail.length; i++) {
+      const tr = b.trail[i];
+      ctx.fillStyle = b.color;
+      ctx.globalAlpha = (i / b.trail.length) * 0.5;
+      ctx.beginPath();
+      ctx.arc(tr.x, tr.y, b.size * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // Bullet
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // --- Particles ---
+  for (const pt of game.particles) {
+    ctx.globalAlpha = pt.life / pt.maxLife;
+    ctx.fillStyle = pt.color;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // --- Bots ---
+  for (const bot of game.bots) {
+    if (!bot.alive) continue;
+    if (bot.x < cam.x - 100 || bot.x > cam.x + W + 100 || bot.y < cam.y - 100 || bot.y > cam.y + H + 100) continue;
+    drawEntity(bot, '#ff3b30', '#cc2820');
+  }
+
+  // --- Player ---
+  if (game.player.alive) {
+    drawEntity(game.player, '#34c759', '#28a745');
+  }
+
+  // --- Damage numbers ---
+  for (const dn of game.damageNumbers) {
+    ctx.globalAlpha = Math.min(1, dn.life * 2);
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = dn.color;
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.strokeText(dn.text, dn.x, dn.y);
+    ctx.fillText(dn.text, dn.x, dn.y);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.restore();
+
+  // --- Screen edge damage tint ---
+  if (game.player.alive) {
+    const zoneDist = Math.hypot(game.player.x - zone.x, game.player.y - zone.y);
+    if (zoneDist > zone.r) {
+      const gradient = ctx.createRadialGradient(W/2, H/2, H/3, W/2, H/2, H/2);
+      gradient.addColorStop(0, 'rgba(255,0,0,0)');
+      gradient.addColorStop(1, `rgba(255,0,0,${0.4 + Math.sin(performance.now()/200) * 0.1})`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  // --- Crosshair ---
+  if (!isTouch && game.player.alive) {
+    const mx = game.mouse.x, my = game.mouse.y;
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(mx - 10, my); ctx.lineTo(mx - 4, my);
+    ctx.moveTo(mx + 4, my); ctx.lineTo(mx + 10, my);
+    ctx.moveTo(mx, my - 10); ctx.lineTo(mx, my - 4);
+    ctx.moveTo(mx, my + 4); ctx.lineTo(mx, my + 10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(mx, my, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff9500';
+    ctx.fill();
+  }
+
+  // --- Minimap ---
+  drawMinimap();
+}
+
+function drawEntity(e, color, darkColor) {
+  const recoilOffset = e.recoil > 0 ? -Math.cos(e.angle) * 3 : 0;
+  const ex = e.x + Math.cos(e.angle) * recoilOffset;
+  const ey = e.y + Math.sin(e.angle) * recoilOffset;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(e.x, e.y + 4, e.radius + 2, e.radius * 0.6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Muzzle flash
+  if (e.muzzleFlash > 0) {
+    const fx = ex + Math.cos(e.angle) * 22;
+    const fy = ey + Math.sin(e.angle) * 22;
+    ctx.shadowColor = '#ff9500';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(fx, fy, 6 + Math.random() * 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Gun
+  ctx.save();
+  ctx.translate(ex, ey);
+  ctx.rotate(e.angle);
+  ctx.fillStyle = '#2a2a2a';
+  ctx.fillRect(e.radius - 4, -3, 20, 6);
+  ctx.fillStyle = '#444';
+  ctx.fillRect(e.radius + 10, -2, 8, 4);
+  ctx.restore();
+
+  // Body
+  ctx.fillStyle = darkColor;
+  ctx.beginPath();
+  ctx.arc(ex, ey, e.radius + 1, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(ex, ey, e.radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Direction indicator
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.beginPath();
+  ctx.arc(ex + Math.cos(e.angle) * e.radius * 0.5, ey + Math.sin(e.angle) * e.radius * 0.5, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Health bar
+  if (e.health < e.maxHealth) {
+    const barW = 40, barH = 5;
+    const barX = e.x - barW / 2;
+    const barY = e.y - e.radius - 14;
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(barX, barY, barW, barH);
+    const hpPct = Math.max(0, e.health / e.maxHealth);
+    ctx.fillStyle = hpPct > 0.5 ? '#34c759' : hpPct > 0.25 ? '#ff9500' : '#ff3b30';
+    ctx.fillRect(barX, barY, barW * hpPct, barH);
+  }
+
+  // Name for bots
+  if (!e.isPlayer) {
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.strokeText(e.name, e.x, e.y - e.radius - 20);
+    ctx.fillText(e.name, e.x, e.y - e.radius - 20);
+  }
+}
+
+function drawMinimap() {
+  const map = document.getElementById('minimap');
+  const mctx = map.getContext('2d');
+  const size = 130;
+  const scale = size / game.world.w;
+
+  mctx.fillStyle = '#0a1410';
+  mctx.fillRect(0, 0, size, size);
+
+  // Zone
+  mctx.strokeStyle = 'rgba(90,200,250,0.8)';
+  mctx.lineWidth = 1.5;
+  mctx.beginPath();
+  mctx.arc(game.zone.x * scale, game.zone.y * scale, game.zone.r * scale, 0, Math.PI * 2);
+  mctx.stroke();
+
+  // Bots
+  for (const bot of game.bots) {
+    if (!bot.alive) continue;
+    mctx.fillStyle = '#ff3b30';
+    mctx.beginPath();
+    mctx.arc(bot.x * scale, bot.y * scale, 2, 0, Math.PI * 2);
+    mctx.fill();
+  }
+
+  // Player
+  if (game.player.alive) {
+    mctx.fillStyle = '#34c759';
+    mctx.beginPath();
+    mctx.arc(game.player.x * scale, game.player.y * scale, 3, 0, Math.PI * 2);
+    mctx.fill();
+  }
+
+  // Loot
+  for (const l of game.loot) {
+    mctx.fillStyle = 'rgba(255,149,0,0.6)';
+    mctx.fillRect(l.x * scale - 1, l.y * scale - 1, 2, 2);
+  }
+}
+
+// ============================================================
+// GAME OVER
+// ============================================================
+function showGameOver() {
+  const isWin = game.state === 'won';
+  const card = document.getElementById('gameover-card');
+  card.classList.toggle('win', isWin);
+  document.getElementById('gameover-title').textContent = isWin ? 'WINNER WINNER' : 'ELIMINATED';
+  const place = isWin ? '1st' : `${game.bots.filter(b => b.alive).length + 2}th`;
+  document.getElementById('gameover-stats').innerHTML = `
+    Placement: <strong>#${place}</strong><br>
+    Kills: <strong>${game.player.kills}</strong><br>
+    Survived: <strong>${Math.floor((performance.now() - game.startTime) / 1000)}s</strong>
+  `;
+  document.getElementById('gameover').classList.remove('hidden');
+  document.getElementById('hud').style.display = 'none';
+  if (isWin) {
+    for (let i = 0; i < 3; i++) setTimeout(() => playSound('kill'), i * 200);
+  }
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+let lastTime = 0;
+function loop(time) {
+  const dt = Math.min((time - lastTime) / 1000, 0.05);
+  lastTime = time;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
 
 // ============================================================
 // START
 // ============================================================
-function startApp() {
-  const s = getSession();
-  if (!s) { showGate(); return; }
-  const acc = getAccounts().find(a => a.id === s.id);
-  if (!acc || acc.disabled || isExpired(acc)) {
-    setSession(null);
-    showGate();
-    showGateMsg('Session expired. Please sign in again.');
-    return;
-  }
-  currentUser = acc;
-  load();
-  state.view.month = currentMonthKey();
-  state.viewMode = 'app';
-  hideGate();
+document.getElementById('play-btn').onclick = () => {
+  initAudio();
+  newGame();
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('gameover').classList.add('hidden');
+  document.getElementById('hud').style.display = 'block';
+  updateHUD();
+};
 
-  cloudStatus = navigator.onLine ? 'online' : 'offline';
-  updateCloudPill();
-  render();
+document.getElementById('restart-btn').onclick = () => {
+  initAudio();
+  newGame();
+  document.getElementById('gameover').classList.add('hidden');
+  document.getElementById('hud').style.display = 'block';
+  updateHUD();
+};
 
-  // Auto-sync on login if online
-  if (navigator.onLine) setTimeout(() => syncDown(false), 800);
-}
-
-setInterval(() => {
-  if (currentUser && currentUser.role !== 'admin' && isExpired(currentUser)) {
-    toast('Access expired. Contact seller.');
-    setSession(null);
-    setTimeout(() => location.reload(), 1500);
-  }
-}, 30000);
-
-(async () => {
-  try { await initAccounts(); }
-  catch (e) { console.error('Init accounts failed:', e); }
-  setSession(null);
-  showGate();
-})();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
